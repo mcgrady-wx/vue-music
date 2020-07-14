@@ -34,6 +34,7 @@
 </template>
 
 <script>
+// `https://y.gtimg.cn/music/photo_new/T001R300x300M000${Fsinger_mid}.jpg?max_age=2592000`
 export default {
     name:"singer"
 }

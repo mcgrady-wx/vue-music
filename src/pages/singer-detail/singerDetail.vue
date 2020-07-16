@@ -1,16 +1,22 @@
 <template>
     <div class="singer-detail">
-        详情
+        <music-list :data="list"></music-list>
     </div>
    
 </template>
 
 <script>
 import {mapGetters} from 'vuex'
-import {getSingerDetail} from '../../api/singer'
+import {getSingerDetail,getSongVkey} from '../../api/singer'
+import musicList from '../../components/music-list/musiclist.vue'
 
 export default {
     name:'singer-detail',
+    data(){
+        return {
+            list:[]
+        }
+    },
     computed: {
         ...mapGetters([
             'singerDetail'
@@ -25,14 +31,37 @@ export default {
             }
             //存在就发起jsonp请求数据
             getSingerDetail(this.singerDetail.id).then((res)=>{
-                console.log(res.data.list)
+                //console.log(res.data.list)
+                //处理拿到的数据
+                this.list=res.data.list.map((item)=>{
+                    let vkey=""
+                    getSongVkey(item.musicData.songmid).then((res)=>{
+                        //vkey = res.data.items[0].vkey;
+                        console.log(res.req)
+                       // console.log(res.data.items[0].vkey)
+                    })
+                    
+                    return {
+                        id: item.musicData.songid,
+                        mid: item.musicData.songmid,
+                        singer: item.musicData.singer[0].name,
+                        name: item.musicData.songname,
+                        album: item.musicData.albumname,
+                        duration: item.musicData.interval,
+                        image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${item.musicData.albummid}.jpg?max_age=2592000`,
+                        url: `http://58.49.111.24/amobile.music.tc.qq.com/C400${item.musicData.songmid}.m4a?guid=1712033339&vkey=${vkey}&uin=6897&fromtag=66`
+                    }
+                })
+                //console.log(this.list)
             })
         }
     },
     created() {
         this.getDetail()
     },
-    
+    components:{
+        musicList
+    }
 }
 </script>
 

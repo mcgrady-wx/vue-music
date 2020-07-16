@@ -10,7 +10,15 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      '/api': {  //使用"/api"来代替"https://u.y.qq.com/cgi-bin/musics.fcg" 
+          target: 'https://u.y.qq.com/cgi-bin/musics.fcg', //源地址 
+          changeOrigin: true, //改变源 
+          pathRewrite: { 
+            '^/api': 'https://u.y.qq.com/cgi-bin/musics.fcg' //路径重写 
+      } 
+  } 
+    },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST

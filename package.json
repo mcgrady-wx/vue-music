@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "jsonp": "^0.2.1",
     "mint-ui": "^2.2.13",
     "vue": "^2.5.2",
     "vue-axios": "^2.1.5",
-    "vue-router": "^3.0.1"
+    "vue-jsonp": "^0.1.8",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.5.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

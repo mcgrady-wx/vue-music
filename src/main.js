@@ -9,6 +9,9 @@ import 'mint-ui/lib/style.css'
 //全局注册
 Vue.use(MintUI)
 
+//导入vuex实例
+import store from './store'
+
 //图片懒加载
 import VueLazyLoad from 'vue-lazyload'
 Vue.use(VueLazyLoad,{
@@ -28,6 +31,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

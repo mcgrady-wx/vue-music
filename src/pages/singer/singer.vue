@@ -1,17 +1,23 @@
 <template>
     <div class="singer">
-        <mt-index-list >
-            <mt-index-section class="list-group" v-for="item in singers" :key="item.title" :index="item.title">
-                <mt-cell v-for="singer in item.items" :key="singer.id" :title="singer.name" class='list-group-item'>
-                    <img v-lazy="singer.singerUrl" class="avatar">
-                </mt-cell>
-            </mt-index-section>
-        </mt-index-list>
+        <div class="listview">
+            <mt-index-list >
+                <mt-index-section class="list-group" v-for="item in singers" :key="item.title" :index="item.title">
+                    <mt-cell v-for="singer in item.items" :key="singer.id" :title="singer.name" class='list-group-item' @click.native="gotoDetail(singer)">
+                        <img v-lazy="singer.singerUrl" class="avatar">
+                    </mt-cell>
+                </mt-index-section>
+            </mt-index-list>
+        </div>
+        <transition name="detail">
+            <router-view></router-view>
+        </transition>
     </div>
 </template>
 
 <script>
 import base from '../../api/base'
+import {mapMutations} from "vuex"
 export default {
     name:"singer",
     data(){
@@ -20,6 +26,9 @@ export default {
         }
     },
     methods: {
+        ...mapMutations([
+            'getSingerDetail'
+        ]),
         //获取歌手列表
         getSingers(){
             //数据的顺序并非自己需要的样式，需要自己重新整理排序
@@ -40,7 +49,7 @@ export default {
                     if (index<HOT_NUM) { //设置热门歌手
                         singer.hot.items.push({
                             name: item.Fsinger_name,
-                            id: item.Fsinger_id,
+                            id: item.Fsinger_mid,
                             singerUrl:`https://y.gtimg.cn/music/photo_new/T001R300x300M000${item.Fsinger_mid}.jpg?max_age=2592000`
                         })
                     }
@@ -82,6 +91,13 @@ export default {
                 // console.log(singer) //按照需求的对象格式 
                 // console.log(this.singers) //最终需要的数组数据
             })
+        },
+        //跳转到歌手详情页面
+        gotoDetail(data){
+            //console.log(id)
+            this.$router.push(`/singer/${data.id}`)
+            //保存歌手信息
+            this.getSingerDetail(data)
         }
     },
     mounted() {
@@ -97,6 +113,7 @@ export default {
     width: 100%
     height: 100%
     overflow: hidden
+    touch-action: none //处理默认错误
     background: $color-background
     .mint-indexlist-content
         margin-right :0!important
@@ -146,6 +163,9 @@ export default {
         font-size: $font-size-small
         &.current
           color: $color-theme
-    
+ .detail-enter-active,.detail-leave-active
+    transition: all 0.3s
+ .detail-enter,.detail-leave-to
+    transform: translate3d(100%, 0, 0)  
     
 </style>

@@ -1,13 +1,13 @@
 <template>
     <div class="singer-detail">
-        <music-list :data="list"></music-list>
+        <music-list :data="list" :title="singerDetail.name" :bgImg="singerDetail.singerUrl"></music-list>
     </div>
    
 </template>
 
 <script>
 import {mapGetters} from 'vuex'
-import {getSingerDetail,getSongVkey} from '../../api/singer'
+import {getSingerDetail} from '../../api/singer'
 import musicList from '../../components/music-list/musiclist.vue'
 
 export default {
@@ -34,12 +34,12 @@ export default {
                 //console.log(res.data.list)
                 //处理拿到的数据
                 this.list=res.data.list.map((item)=>{
-                    let vkey=""
-                    getSongVkey(item.musicData.songmid).then((res)=>{
-                        //vkey = res.data.items[0].vkey;
-                        console.log(res.req)
-                       // console.log(res.data.items[0].vkey)
-                    })
+                    // let vkey=""
+                    // getSongVkey(item.musicData.songmid).then((res)=>{
+                    //     //vkey = res.data.items[0].vkey;
+                    //     console.log(res.req)
+                    //    // console.log(res.data.items[0].vkey)
+                    // })
                     
                     return {
                         id: item.musicData.songid,
@@ -49,7 +49,7 @@ export default {
                         album: item.musicData.albumname,
                         duration: item.musicData.interval,
                         image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${item.musicData.albummid}.jpg?max_age=2592000`,
-                        url: `http://58.49.111.24/amobile.music.tc.qq.com/C400${item.musicData.songmid}.m4a?guid=1712033339&vkey=${vkey}&uin=6897&fromtag=66`
+                        url: `http://58.49.111.24/amobile.music.tc.qq.com/C400${item.musicData.songmid}.m4a?guid=1712033339&vkey=&uin=6897&fromtag=66`
                     }
                 })
                 //console.log(this.list)

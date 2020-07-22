@@ -1,34 +1,126 @@
 <template>
   <div class="music-list">
-    <div class="back">
+    <!-- 返回上一级图标 -->
+    <div class="back" @click="gotoback">
       <i class="icon-back"></i>
     </div>
     <h1 class="title">{{title}}</h1>
+    <!-- 背景图片区域 -->
     <div class="bg-image" ref="bgImage" :style="bgStyle">
+      <!-- 播放图标 -->
       <div class="play-wrapper">
         <div ref="playBtn" class="play">
           <i class="icon-play"></i>
           <span class="text">随机播放全部</span>
         </div>
       </div>
+      <!-- 用于实现高斯模糊 -->
+      <div class="filter" ref="filter"></div>
     </div>
-    <div class="list" ref="list" @touchstart="handlestart" @touchend="hendleend" @touchmove.prevent="handlemove"> 
+    <!-- 用于拉动遮住背景 -->
+    <div class="bg-layer" ref="layer"></div>
+    <!-- 歌曲列表区域 -->
+    <music-scroll :data="data" @scroll="scroll" :listen-scroll="listenScroll" :probe-type="probeType" class="list" ref="list">
       <div class="song-list-wrapper">
         <song-list :data="data"></song-list>
       </div>
       <div v-show="!data.length" class="loading-container">
         <loading></loading>
       </div>
-    </div>
+    </music-scroll>   
   </div>
 </template>
 
 <script>
-  import loading from '../../components/loading/loading'
+  import loading from '../loading/loading.vue'
   import songList from '../song-list/song-list.vue'
+  import musicScroll from '../scroll/scroll.vue'
+  const RESERVED_HEIGHT = 40 //最多滚动到距离顶部40像素
   export default {
       name:'musiclist',
       data(){
+        return {
+          probeType : 3,
+          listenScroll : true,
+          scrollY:0,//滚动距离
+          bgHeight:0,//背景图片的高度
+        }
+      },
+      mounted(){//获得背景图片的高度，设置歌曲列表距离顶部的位置
+        this.bgHeight = this.$refs.bgImage.clientHeight
+        //最高滚动距离
+        this.minTransalteY = -this.bgHeight + RESERVED_HEIGHT
+        //设置列表距离顶部距离
+        this.$refs.list.$el.style.top=`${this.bgHeight}px`
+      },
+      computed: {
+        bgStyle(){//设置背景图片
+          return `background-image:url(${this.bgImg})`
+        }
+      },
+      watch:{
+        scrollY(newVal){//监控scrollY值的变化，当变化的时候移动DOM元素layer
+            //获得移动距离,最多滚动到this.minTransalteY这个位置，
+            let translateY = Math.max(this.minTransalteY,newVal)
+            //显示优先级
+            let zIndex = 0
+            //设置向下拉放大系数
+            let scale = 1
+            //设置向上模糊系数
+            let blur = 0
+            //比例系数，取绝对值
+            const percent = Math.abs(newVal / this.bgHeight)
+            if (newVal > 0) {//表示向下拉 ，设置背景图放大系数
+              scale = 1 + percent
+              zIndex = 10
+            } else {//表示向上拉，设置背景图模糊系数
+              blur = Math.min(20, percent * 20)//模糊比例，最大20
+            }
+            //移动元素，兼容写法
+            this.$refs.layer.style['transform'] = `translate3d(0,${translateY}px,0)`
+            this.$refs.layer.style['webkitTransform'] = `translate3d(0,${translateY}px,0)`
+            //设置高斯模糊
+            this.$refs.filter.style['backdrop'] = `blur(${blur}px)`
+            this.$refs.filter.style['webkitBackdrop'] = `blur(${blur}px)`
+            
+            if (newVal<this.minTransalteY) {//小于，表示已经上拉到最高点，改变背景图的css样式
+              zIndex = 10
+              //改变背景图片的css属性
+              this.$refs.bgImage.style.paddingTop = 0
+              this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`
+              //隐藏随机播放图标
+              this.$refs.playBtn.style.display = 'none'
+            } else {//大于，表示在正常拉动范围，还原背景图的css样式
+              //把背景图片的css还原
+              this.$refs.bgImage.style.paddingTop = '70%'
+              this.$refs.bgImage.style.height =''
+              //显示随机播放图标
+              this.$refs.playBtn.style.display = ''
+            }
+            //背景图片放大
+            this.$refs.bgImage.style['transform'] = `scale(${scale})`
+            this.$refs.bgImage.style['webkitTransform'] = `scale(${scale})`
+            //设置背景图片的显示优先级
+            this.$refs.bgImage.style.zIndex = zIndex
+        }
+      },
+      methods:{
+        scroll(pos){//自定义的事件，pos是子元素调用$emit方法使用事件传递回来的参数，具体是元素的滚动距离的对象
+          //console.log(pos)
+          this.scrollY=pos.y
+        },
+        gotoback(){
+          //this.$router.go(-1)
+          this.$router.back()
+        }
+      },
+      components:{
+        loading,
+        songList,
+        musicScroll
+      },
+      props:['title','data','bgImg'],
+      /*data(){
         return {
           loop:"",//计数器
           flag:false,
@@ -45,65 +137,68 @@
           return `background-image:url(${this.bgImg})`
         }
       },
-      mounted() {//获得背景图得高度，得到歌曲列表具体顶部多少
+      mounted() {//获得背景图的高度，得到歌曲列表距离顶部多少
         //console.log(this.$refs.bgImage.clientHeight)
         this.bgHeight=this.$refs.bgImage.clientHeight
+        //console.log(this.$refs.list)
         this.$refs.list.style.top=`${this.bgHeight}px`
-        
       },
       methods: {
-        handlestart (e) {//长按
-          clearTimeout(this.loop); //再次清空定时器，防止重复注册定时器
+        handlestart (e) {//长按
+          clearTimeout(this.loop); //再次清空定时器，防止重复注册定时器
           //console.log(e)
           //获得元素距离顶部的距离
           this.domHeight=this.$refs.list.offsetTop
           //获取按下后初始的Y轴坐标
           this.startY=e.targetTouches[0].clientY
-          this.loop = setTimeout(() => {
+          this.loop = setTimeout(() => {
             //启动移动事件
             this.flag=true
-          }, 1000);
-        },
+          }, 1000);
+        },
         handlemove(e){
           if (this.flag) {
+            //隐藏随机播放
+            this.$refs.playBtn.style.display="none"
             //获取按下后鼠标的Y轴坐标
             this.mouseY=e.targetTouches[0].clientY
             //计算出移动的距离
             this.domY=this.startY-this.mouseY
             //计算出移动中元素距离顶部的距离
-            let top=this.domHeight-this.domY
+            let topY=this.domHeight-this.domY
             //console.log(this.domY)
             //固定移动的范围
             if (this.domY>=(this.domHeight-40)) {//当移动距离大于了
               this.$refs.list.style.top=`40px`
-            } else if(this.domY<=0){//当移动距离大于0，说明是向下拉
-              if (top>=this.bgHeight) {//当元素距离顶部的距离大于等于了背景图的高度时
+            } else if(this.domY<=0){//当移动距离小于0，说明是向下拉
+              if (topY>=this.bgHeight) {//当元素距离顶部的距离大于等于了背景图的高度时
+                //显示随机播放
+                this.$refs.playBtn.style.display="block"
                 this.$refs.list.style.top=`${this.bgHeight}px`
                 this.flag=false//停止移动事件
               } else {//当元素距离顶部的距离小于背景图的高度时
-                 this.$refs.list.style.top=`${top}px`
+                 this.$refs.list.style.top=`${topY}px`
               }
             } else {//其他
-              this.$refs.list.style.top=`${top}px`
+              this.$refs.list.style.top=`${topY}px`
             }
           }
         },
-        hendleend () {
-          clearTimeout(this.loop); //清空定时器，防止重复注册定时器
+        hendleend () {
+          clearTimeout(this.loop); //清空定时器，防止重复注册定时器
           //console.log("松开了")
         }
       },
       components:{
         songList,
-        loading
-      }
+        loading,
+      }*/
   }
 </script>
 
 <style scoped lang="stylus">
   @import "../../common/stylus/variable"
   @import "../../common/stylus/mixin"
-
   .music-list
     position: fixed
     z-index: 100

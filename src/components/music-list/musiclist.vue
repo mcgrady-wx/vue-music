@@ -27,7 +27,15 @@
       <div v-show="!data.length" class="loading-container">
         <loading></loading>
       </div>
-    </music-scroll>   
+    </music-scroll>
+    <!-- <div class="list" ref="list" @touchstart="handlestart" @touchmove="handlemove" @touchend="hendleend">
+      <div class="song-list-wrapper">
+        <song-list :data="data"></song-list>
+      </div>
+      <div v-show="!data.length" class="loading-container">
+        <loading></loading>
+      </div>
+    </div>       -->
   </div>
 </template>
 
@@ -112,7 +120,7 @@
         gotoback(){
           //this.$router.go(-1)
           this.$router.back()
-        }
+        }       
       },
       components:{
         loading,
@@ -187,6 +195,10 @@
         hendleend () {
           clearTimeout(this.loop); //清空定时器，防止重复注册定时器
           //console.log("松开了")
+        },
+        gotoback(){
+          //this.$router.go(-1)
+          this.$router.back()
         }
       },
       components:{

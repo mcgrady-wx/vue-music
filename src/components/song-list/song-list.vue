@@ -1,7 +1,7 @@
 <template>
   <div class="song-list">
     <ul>
-      <li class="item" v-for="song in data" :key="song.id">
+      <li @click="selectItem(song,index)" class="item" v-for="(song,index) in data" :key="song.id">
         <div class="content">
           <h2 class="name">{{song.name}}</h2>
           <p class="desc">{{song.singer}}.{{song.album}}</p>
@@ -12,9 +12,23 @@
 </template>
 
 <script>
+  import {mapActions} from 'vuex'
+
   export default {
     name:'songlist',
-    props:["data"]
+    props:["data"],
+    methods: {
+      ...mapActions([
+        'selectPlay'
+      ]),
+      selectItem(song,index){//开启播放器
+        //传入数据，歌曲列表和当前播放歌曲序号
+        this.selectPlay({
+          list:this.data, //歌曲列表
+          index
+        })
+      }
+    },
   }
 </script>
 

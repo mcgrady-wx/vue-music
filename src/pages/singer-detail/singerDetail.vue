@@ -49,7 +49,7 @@ export default {
                         album: item.musicData.albumname,
                         duration: item.musicData.interval,
                         image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${item.musicData.albummid}.jpg?max_age=2592000`,
-                        url: `http://58.49.111.24/amobile.music.tc.qq.com/C400${item.musicData.songmid}.m4a?guid=1712033339&vkey=&uin=6897&fromtag=66`
+                        url: `http://ws.stream.qqmusic.qq.com/C400${item.musicData.strMediaMid}.m4a?guid=1712033339&vkey=201823329EF1369569558A32B8A542324BFD443B3041FDA3C1B67237C92C4E9D063C3FACCFED8806B960CE96266F79E9B88BF1AB7E7A5F55&uin=0&fromtag=66`
                     }
                 })
                 //console.log(this.list)

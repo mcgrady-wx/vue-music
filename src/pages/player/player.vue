@@ -1,83 +1,247 @@
 <template>
     <div class="player" v-show="playlist.length>0">
-        <div class="normal-player" v-show="fullScreen">
-          <div class="background">
-            <img width="100%" height="100%" :src="currentSong?currentSong.image:''">
-          </div>
-          <div class="top">
-            <div class="back" @click="back">
-              <i class="icon-back"></i>
+        <!-- 大播放器 -->
+        <transition name='normal' @enter="enter"  @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
+          <div class="normal-player" v-show="fullScreen">
+            <!-- 背景 -->
+            <div class="background">
+              <img width="100%" height="100%" :src="currentSong?currentSong.image:''">
             </div>
-            <h1 class="title" v-html="currentSong?currentSong.name:' '"></h1>
-            <h2 class="subtitle" v-html="currentSong?currentSong.singer:' '"></h2>
-          </div>
-          <div class="middle">
-            <div class="middle-l">
-              <div class="cd-wrapper">
-                <div class="cd">
-                  <img class="image" :src="currentSong?currentSong.image:''">
+            <!-- 顶部 -->
+            <div class="top">
+              <div class="back" @click="back">
+                <i class="icon-back"></i>
+              </div>
+              <h1 class="title" v-html="currentSong?currentSong.name:' '"></h1>
+              <h2 class="subtitle" v-html="currentSong?currentSong.singer:' '"></h2>
+            </div>
+            <!-- 中间CD部分 -->
+            <div class="middle">
+              <div class="middle-l">
+                <div class="cd-wrapper" ref="cdWrapper"> 
+                  <div class="cd" :class="cdCls">
+                    <img class="image" :src="currentSong?currentSong.image:''">
+                  </div>
                 </div>
               </div>
             </div>
+            <!-- 按钮部分 -->
+            <div class="bottom">
+              <div class="operators">
+                <div class="icon i-left">
+                  <i class="icon-sequence"></i>
+                </div>
+                <div class="icon i-left" :class="disableCls">
+                  <i @click="prev" class="icon-prev"></i>
+                </div>
+                <div class="icon i-center" :class="disableCls">
+                  <i :class="playIcon" @click="handleplay"></i>
+                </div>
+                <div class="icon i-right" :class="disableCls">
+                  <i @click="next" class="icon-next"></i>
+                </div>
+                <div class="icon i-right">
+                  <i class="icon icon-not-favorite"></i>
+                </div>
+              </div>  
+            </div>   
           </div>
-          <div class="bottom">
-            <div class="operators">
-              <div class="icon i-left">
-                <i class="icon-sequence"></i>
-              </div>
-              <div class="icon i-left">
-                <i class="icon-prev"></i>
-              </div>
-              <div class="icon i-center">
-                <i class="icon-play"></i>
-              </div>
-              <div class="icon i-right">
-                <i class="icon-next"></i>
-              </div>
-              <div class="icon i-right">
-                <i class="icon icon-not-favorite"></i>
-              </div>
-            </div>  
-          </div>   
-        </div>
-        <div class="mini-player" v-show="!fullScreen" @click="open">
-          <div class="icon">
-            <img width="40" height="40" :src="currentSong?currentSong.image:''">
+        </transition>
+        <!-- 小播放器 -->
+        <transition name="mini">
+          <div class="mini-player" v-show="!fullScreen" @click="open">
+            <div class="icon">
+              <img :class="cdCls" width="40" height="40" :src="currentSong?currentSong.image:''">
+            </div>
+            <div class="text">
+              <h2 class="name" v-html="currentSong?currentSong.name:' '"></h2>
+              <p class="desc" v-html="currentSong?currentSong.singer:' '"></p>
+            </div>
+            <div class="control">
+               <i class="icon-mini" :class="miniIcon" @click.stop="handleplay"></i>
+            </div>
+            <div class="control">
+              <i class="icon-playlist"></i>
+            </div>
           </div>
-          <div class="text">
-            <h2 class="name" v-html="currentSong?currentSong.name:' '"></h2>
-            <p class="desc" v-html="currentSong?currentSong.singer:' '"></p>
-          </div>
-          <div class="control"></div>
-          <div class="control">
-            <i class="icon-playlist"></i>
-          </div>
-        </div>    
+        </transition>
+        <!-- onplay自带事件，表示当视频或音频开始播放时候触发
+        onerror自带事件，表示当视频或者音频发生错误时候触发 -->
+        <audio ref="audio" :src="currentSong?currentSong.url:' '" @play="ready" @error="error"></audio>  
     </div>   
 </template>
 
 <script>
   import {mapGetters,mapMutations} from 'vuex'
+  import animations from 'create-keyframe-animation'//过度动画第三方库
   
   export default {
       name:'player',
+      data(){
+        return {
+          songReady:false
+        }
+      },
       computed: {
-          ...mapGetters([
-              'fullScreen',
-              'playlist',
-              'currentSong'
-          ])
+        cdCls() {//cd是否旋转
+          return this.playing ? 'play' : 'play pause'
+        },
+        playIcon(){//播放图标样式
+          return this.playing ? 'icon-pause' : 'icon-play'
+        },
+        miniIcon(){//小播放图标样式
+          return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+        },
+        disableCls(){//歌曲是否准备好，没准备好图标显示灰色
+          return this.songReady ? '' : 'disable'
+        },
+        ...mapGetters([
+          'fullScreen',
+          'playlist',
+          'currentSong',
+          'playing',
+          'currentIndex'
+        ])
+      },
+      watch: {
+        currentSong(){
+          this.$nextTick(()=>{//做延时
+            this.$refs.audio.play()
+          })
+        },
+        playing(newPlay){//做歌曲的暂停播放
+          this.$nextTick(()=>{//做延时
+            newPlay?this.$refs.audio.play():this.$refs.audio.pause()
+          })
+        },
       },
       methods: {
- 
+        ready(){//歌曲是否已经准备好播放
+            this.songReady=true
+        },
+        error(){//歌曲发生错误触发，为了能正常使用按键，也当作准备好
+            this.songReady=true
+        },
+        prev(){//后退
+          if (!this.songReady) {//没准备好，直接他return
+            return
+          }
+          let index=this.currentIndex-1
+          if (index===-1) {
+            index=this.playlist.length-1
+          }
+          if (!this.playing) {//暂停
+            //启动播放
+            this.handleplay()
+          }
+          this.getCurrentIndex(index)
+        },
+        next(){//前进
+           if (!this.songReady) {//没准备好，直接他return
+            return
+          }
+          let index=this.currentIndex+1
+          if (index===this.playlist.length) {
+            index=0
+          }
+          if (!this.playing) {//暂停
+            //启动播放
+            this.handleplay()
+          }
+          this.getCurrentIndex(index)
+        },
+        handleplay(){//暂停、播放
+          this.getPlaying(!this.playing)
+        },
         back(){//显示小播放器
           this.getFullScreen(false)
         },
         open(){//显示全屏播放器
           this.getFullScreen(true)
         },
+        enter(el,done){
+          const {x,y,scale}=this.getcdxy()//获得小cd的初始状态
+          //设置运动状态
+          let animation={
+            0:{//初始状态
+              transform:`translate3d(${x}px,${y}px,0) scale(${scale})`
+            },
+            60:{
+              transform:`translate3d(0,0,0) scale(1.1)`
+            },
+            100:{
+              transform:`translate3d(0,0,0) scale(1)`
+            },
+          }
+          //创建过度动画
+          animations.registerAnimation({
+            name: 'move',//动画名
+            animation,//动画运动状态
+            presets: {
+              duration: 400,// 动画时长
+              easing: 'linear'// 动画曲线
+            }
+          })
+          //执行动画，绑定动画元素，并执行回调函数done进入下一阶段afterenter
+          animations.runAnimation(this.$refs.cdWrapper, 'move', done)
+
+        },
+        afterEnter(){
+          //结束动画
+          animations.unregisterAnimation('move')
+          //属性值为空
+          this.$refs.cdWrapper.style.animation = ''
+        },
+        leave(el,done){
+          const {x,y,scale}=this.getcdxy()//获得小cd的初始状态
+          //设置运动状态
+          let animation={
+            0:{//初始状态
+              transform:`translate3d(0,0,0) scale(1)`
+            },
+            60:{
+              transform:`translate3d(0,0,0) scale(1.1)`
+            },
+            100:{
+              transform:`translate3d(${x}px,${y}px,0) scale(${scale})`
+            },
+          }
+          //创建过度动画
+          animations.registerAnimation({
+            name: 'out',//动画名
+            animation,//动画运动状态
+            presets: {
+              duration: 400,// 动画时长
+              easing: 'linear'// 动画曲线
+            }
+          })
+          //执行动画，绑定动画元素，并执行回调函数done进入下一阶段afterenter
+          animations.runAnimation(this.$refs.cdWrapper, 'out', done)
+        },
+        afterLeave(){
+          //结束动画
+          animations.unregisterAnimation('out')
+          //属性值为空
+          this.$refs.cdWrapper.style.animation = ''
+        },
+        getcdxy(){//获得小cd到大cd，X和Y轴的移动距离，和scale的比例
+          const targetWidth = 40 //小cd的宽度
+          const paddingLeft = 40 //小cd中心点距离左边的距离
+          const paddingBottom = 30 //小cd中心点距离底部的距离
+          const paddingTop = 80 //大cd距离顶部的距离
+          const width = window.innerWidth * 0.8 //大cd的宽度
+          const scale = targetWidth / width //缩放比例
+          const x=-(window.innerWidth/2-paddingLeft) //从小到大，x轴的移动距离
+          const y = window.innerHeight - paddingTop - width / 2 - paddingBottom //从小到大，y轴的移动距离
+
+          return {
+            x,y,scale
+          }
+        },
         ...mapMutations([
-          'getFullScreen'
+          'getFullScreen',
+          'getPlaying',
+          'getCurrentIndex'
         ]),
       }
   }
@@ -314,9 +478,7 @@
           color: $color-theme-d
         .icon-mini
           font-size: 32px
-          position: absolute
-          left: 0
-          top: 0
+          
 
   @keyframes rotate
     0%

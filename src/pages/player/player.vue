@@ -27,6 +27,13 @@
             </div>
             <!-- 按钮部分 -->
             <div class="bottom">
+              <div class="progress-wrapper">
+                <span class="time time-l">{{format(currentTime)}}</span>
+                <div class="progress-bar-wrapper">
+                  <progress-bar :percent="percent" @percentChange="percentChange"></progress-bar>
+                </div>
+                <span class="time time-r">{{currentSong?format(currentSong.duration):0}}</span>
+              </div>
               <div class="operators">
                 <div class="icon i-left">
                   <i class="icon-sequence"></i>
@@ -58,7 +65,9 @@
               <p class="desc" v-html="currentSong?currentSong.singer:' '"></p>
             </div>
             <div class="control">
-               <i class="icon-mini" :class="miniIcon" @click.stop="handleplay"></i>
+              <progress-circle :radius='radius' :percent="percent">
+                <i class="icon-mini" :class="miniIcon" @click.stop="handleplay"></i>
+              </progress-circle>
             </div>
             <div class="control">
               <i class="icon-playlist"></i>
@@ -66,20 +75,26 @@
           </div>
         </transition>
         <!-- onplay自带事件，表示当视频或音频开始播放时候触发
-        onerror自带事件，表示当视频或者音频发生错误时候触发 -->
-        <audio ref="audio" :src="currentSong?currentSong.url:' '" @play="ready" @error="error"></audio>  
+        onerror自带事件，表示当视频或者音频发生错误时候触发 
+        ontimeupdate自带事件，获得当前视频或者音频的播放时间
+        -->
+        <audio ref="audio" :src="currentSong?currentSong.url:' '" @play="ready" @error="error" @timeupdate="timeupdate"></audio>  
     </div>   
 </template>
 
 <script>
   import {mapGetters,mapMutations} from 'vuex'
   import animations from 'create-keyframe-animation'//过度动画第三方库
+  import progressBar from '../../components/progress-bar/progress-bar.vue'
+  import progressCircle from '../../components/progress-circle/progress-circle.vue'
   
   export default {
       name:'player',
       data(){
         return {
-          songReady:false
+          songReady:false, //歌曲是否准备好播放的标记
+          currentTime:0, //当前播放时间
+          radius: 32,//小播放按钮外圈的大小
         }
       },
       computed: {
@@ -94,6 +109,11 @@
         },
         disableCls(){//歌曲是否准备好，没准备好图标显示灰色
           return this.songReady ? '' : 'disable'
+        },
+        percent() {//播放比例
+          if(this.currentSong){
+            return this.currentTime / this.currentSong.duration //currentSong.duration是歌曲总时长
+          }
         },
         ...mapGetters([
           'fullScreen',
@@ -158,6 +178,31 @@
         },
         open(){//显示全屏播放器
           this.getFullScreen(true)
+        },
+        timeupdate(e){//获得播放时间 
+          //console.log(e.target.currentTime)
+          this.currentTime=e.target.currentTime
+        },
+        format(interval) {//设置时间戳
+          interval = interval | 0
+          const minute = Math.floor(interval / 60 )
+          const second = this._pad(interval % 60)
+          return `${minute}:${second}`
+        },
+        _pad(num, n = 2) {//位数不够补零
+          let len = num.toString().length //数字的位数
+          while (len < n) {
+            num = '0' + num
+            len++
+          }
+          return num
+        },
+        percentChange(percent){//处理返回的比例值，得到新的播放时间
+          this.$refs.audio.currentTime = percent*this.currentSong.duration //通过audio的属性currentTime 设置新的播放时间，currentSong.duration是歌曲总时长
+          if (!this.playing) {//如果是暂停
+             //启动播放
+            this.handleplay()
+          }
         },
         enter(el,done){
           const {x,y,scale}=this.getcdxy()//获得小cd的初始状态
@@ -243,6 +288,10 @@
           'getPlaying',
           'getCurrentIndex'
         ]),
+      },
+      components:{
+        progressBar,
+        progressCircle
       }
   }
 </script>
@@ -478,6 +527,9 @@
           color: $color-theme-d
         .icon-mini
           font-size: 32px
+          position: absolute
+          left: 0
+          top: 0
           
 
   @keyframes rotate

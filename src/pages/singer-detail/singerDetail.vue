@@ -49,7 +49,7 @@ export default {
                         album: item.musicData.albumname,
                         duration: item.musicData.interval,
                         image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${item.musicData.albummid}.jpg?max_age=2592000`,
-                        url: `http://ws.stream.qqmusic.qq.com/C400${item.musicData.strMediaMid}.m4a?guid=1712033339&vkey=201823329EF1369569558A32B8A542324BFD443B3041FDA3C1B67237C92C4E9D063C3FACCFED8806B960CE96266F79E9B88BF1AB7E7A5F55&uin=0&fromtag=66`
+                        url: `http://110.185.116.159/amobile.music.tc.qq.com/C400${item.musicData.strMediaMid}.m4a?guid=1712033339&vkey=FB7FAEBA6E7D11811F07AE47F2CFEBF8BD6100D965C28AF9E138CAC3C03B4CEF6C2E63077412DE0B322466C2BEAEFE7791BD75FA1D18418E&uin=0&fromtag=66`
                     }
                 })
                 //console.log(this.list)

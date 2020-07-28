@@ -35,8 +35,8 @@
                 <span class="time time-r">{{currentSong?format(currentSong.duration):0}}</span>
               </div>
               <div class="operators">
-                <div class="icon i-left">
-                  <i class="icon-sequence"></i>
+                <div class="icon i-left" @click="changeMode">
+                  <i :class="iconMode"></i>
                 </div>
                 <div class="icon i-left" :class="disableCls">
                   <i @click="prev" class="icon-prev"></i>
@@ -87,6 +87,8 @@
   import animations from 'create-keyframe-animation'//过度动画第三方库
   import progressBar from '../../components/progress-bar/progress-bar.vue'
   import progressCircle from '../../components/progress-circle/progress-circle.vue'
+  import { playMode } from '../../store/config'
+  import { shuffle } from '../../common/js/util.js'
   
   export default {
       name:'player',
@@ -98,6 +100,9 @@
         }
       },
       computed: {
+        iconMode(){//播放模式
+          return this.mode===playMode.sequence?'icon-sequence':this.mode===playMode.loop?'icon-loop':'icon-random'
+        },
         cdCls() {//cd是否旋转
           return this.playing ? 'play' : 'play pause'
         },
@@ -120,22 +125,49 @@
           'playlist',
           'currentSong',
           'playing',
-          'currentIndex'
+          'currentIndex',
+          'mode',
+          'sequenceList'
         ])
       },
       watch: {
-        currentSong(){
+        currentSong(newSong,oldSong){
+          if (newSong.id===oldSong.id) {
+            return 
+          }
           this.$nextTick(()=>{//做延时
-            this.$refs.audio.play()
+            this.$refs.audio.play()//播放歌曲
           })
         },
-        playing(newPlay){//做歌曲的暂停播放
+        playing(newPlay){//做歌曲的暂停、播放
           this.$nextTick(()=>{//做延时
-            newPlay?this.$refs.audio.play():this.$refs.audio.pause()
+            newPlay?this.$refs.audio.play():this.$refs.audio.pause() //true播放 false暂停
           })
         },
       },
       methods: {
+        changeMode(){//改变播放模式
+            let mode=(this.mode+1)%3
+            this.getMode(mode)
+            //改变播放列表
+            let list=null
+            //存在问题，当切换的时候当前播放歌曲就会变化
+            if (mode===playMode.random) {//随机播放
+                list=shuffle(this.sequenceList)//打乱顺序播放列表
+            } else {
+               list=this.sequenceList
+            }
+            this.resetcurrentIndex(list)//设置当前播放歌曲在新列表中的下标
+            this.getPlaylist(list) //设置播放列表
+        },
+        resetcurrentIndex(list){//获得当前播放歌曲，在新的list中的下标,并发送mutation设置当前播放歌曲的下标
+            const index=list.findIndex((item)=>{
+              return item.id===this.currentSong.id
+            })
+            //console.log(index)
+            //设置下标
+            this.getCurrentIndex(index)
+        },
         ready(){//歌曲是否已经准备好播放
             this.songReady=true
         },
@@ -286,7 +318,9 @@
         ...mapMutations([
           'getFullScreen',
           'getPlaying',
-          'getCurrentIndex'
+          'getCurrentIndex',
+          'getMode',
+          'getPlaylist'
         ]),
       },
       components:{

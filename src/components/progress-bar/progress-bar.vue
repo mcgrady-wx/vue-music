@@ -24,7 +24,7 @@
       this.touch = {} //用于记录touch事件时候的一些共享属性
     },
     methods: {
-        _offset(offsetWidth) {//移动函数，显示已播放进度条
+        _offset(offsetWidth) {//移动函数，显示已播放进度条和小圆点移动距离
             this.$refs.progress.style.width = `${offsetWidth}px` //进度条显示距离
             this.$refs.progressBtn.style['transform'] = `translate3d(${offsetWidth}px,0,0)` //小圆点移动距离
             this.$refs.progressBtn.style['webkitTransform'] = `translate3d(${offsetWidth}px,0,0)`
@@ -58,7 +58,7 @@
             const rect = this.$refs.progressBar.getBoundingClientRect().left //获得进度条距离左边的距离
             const offsetWidth=e.pageX-rect // e.pageX 是点击位置距离左边的距离。减去进度条距离左边的距离获得移动距离
             this._offset(offsetWidth) //设置进度条显示
-            this._triggerPercent() //设置时间
+            this._triggerPercent() //设置时间 
 
         }
     },

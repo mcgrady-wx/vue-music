@@ -1,8 +1,8 @@
-function getRandomInt(min, max) {
+function getRandomInt(min, max) {//获得最小值-最大值的随机数 包括最大值和最小值
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-export function shuffle(arr) {
+export function shuffle(arr) {//打乱数组
   let _arr = arr.slice()
   for (let i = 0; i < _arr.length; i++) {
     let j = getRandomInt(0, i)
@@ -11,7 +11,7 @@ export function shuffle(arr) {
     _arr[j] = t
   }
   return _arr
-}
+}s
 
 export function debounce(func, delay) {
   let timer

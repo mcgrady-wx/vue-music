@@ -9,7 +9,7 @@
     <div class="bg-image" ref="bgImage" :style="bgStyle">
       <!-- 播放图标 -->
       <div class="play-wrapper">
-        <div ref="playBtn" class="play">
+        <div ref="playBtn" class="play" v-show="data.length>0" @click="random">
           <i class="icon-play"></i>
           <span class="text">随机播放全部</span>
         </div>
@@ -43,6 +43,7 @@
   import loading from '../loading/loading.vue'
   import songList from '../song-list/song-list.vue'
   import musicScroll from '../scroll/scroll.vue'
+  import {mapActions} from 'vuex'
   const RESERVED_HEIGHT = 40 //最多滚动到距离顶部40像素
   export default {
       name:'musiclist',
@@ -113,6 +114,11 @@
         }
       },
       methods:{
+        random(){//点击随机播放按钮,启动播放器，传入数据
+          this.randomPlay({
+            list:this.data
+          })
+        },
         scroll(pos){//自定义的事件，pos是子元素调用$emit方法使用事件传递回来的参数，具体是元素的滚动距离的对象
           //console.log(pos)
           this.scrollY=pos.y
@@ -120,7 +126,10 @@
         gotoback(){
           //this.$router.go(-1)
           this.$router.back()
-        }       
+        },
+        ...mapActions([
+          'randomPlay'
+        ]) 
       },
       components:{
         loading,

@@ -77,8 +77,9 @@
         <!-- onplay自带事件，表示当视频或音频开始播放时候触发
         onerror自带事件，表示当视频或者音频发生错误时候触发 
         ontimeupdate自带事件，获得当前视频或者音频的播放时间
+        noended自带事件，表示当歌曲播放完后处理
         -->
-        <audio ref="audio" :src="currentSong?currentSong.url:' '" @play="ready" @error="error" @timeupdate="timeupdate"></audio>  
+        <audio ref="audio" :src="currentSong?currentSong.url:' '" @play="ready" @error="error" @timeupdate="timeupdate" @ended="end"></audio>  
     </div>   
 </template>
 
@@ -132,8 +133,11 @@
       },
       watch: {
         currentSong(newSong,oldSong){
-          if (newSong.id===oldSong.id) {
-            return 
+          if (!newSong.id) {
+            return
+          }
+          if (newSong.id === oldSong.id) {//判断切换的时候如果是同一首歌曲，直接跳过后面的程序
+            return
           }
           this.$nextTick(()=>{//做延时
             this.$refs.audio.play()//播放歌曲
@@ -146,18 +150,29 @@
         },
       },
       methods: {
+        end(){//当前播放列表播放完
+            if (this.mode === playMode.loop) {
+              this.loop()
+            } else {
+              this.next()
+            }
+        },
+        loop(){//单曲循环，只需要把播放时间设置到最开始，然后启动播放
+            this.$refs.audio.currentTime=0
+            this.$refs.audio.play()
+        },
         changeMode(){//改变播放模式
             let mode=(this.mode+1)%3
             this.getMode(mode)
             //改变播放列表
             let list=null
-            //存在问题，当切换的时候当前播放歌曲就会变化
+            //存在问题，当切换的时候当前播放歌曲就会变化，同时因为currentSong发生变化，在监测中一变化就会执行歌曲播放
             if (mode===playMode.random) {//随机播放
                 list=shuffle(this.sequenceList)//打乱顺序播放列表
             } else {
                list=this.sequenceList
             }
-            this.resetcurrentIndex(list)//设置当前播放歌曲在新列表中的下标
+            this.resetcurrentIndex(list)//设置当前播放歌曲在新列表中的下标，解决切换模式当前播放歌曲会变化的BUG
             this.getPlaylist(list) //设置播放列表
         },
         resetcurrentIndex(list){//获得当前播放歌曲，在新的list中的下标,并发送mutation设置当前播放歌曲的下标

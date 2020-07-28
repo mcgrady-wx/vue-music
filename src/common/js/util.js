@@ -11,7 +11,7 @@ export function shuffle(arr) {//打乱数组
     _arr[j] = t
   }
   return _arr
-}s
+}
 
 export function debounce(func, delay) {
   let timer

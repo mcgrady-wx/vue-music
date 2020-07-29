@@ -40,12 +40,12 @@ export function getSingerDetail(singerId) {
 
 //获取歌曲vkey
 export function getSongVkey(songmid) {
-  const url = 'https://u.y.qq.com/cgi-bin/musics.fcg'
+  const url = '/api/vkey'
   const data = Object.assign({}, {
-    '-': 'getplaysongvkey7736273453744789',
-    'g_tk': '1134770451',
-    'sign': 'zzaebsfvg4ji8i6hd5p0c000441001b60ab35424bf91be50f1c',
-    'loginUin': '384989937',
+    '-': 'getplaysongvkey25481922296110193',
+    'g_tk': '5381',
+    'sign': 'zzadepq27vnnojgn4822c261c850d12c82720db876d2b1c0',
+    'loginUin': 0,
     'hostUin': 0,
     'format': 'json',
     'inCharset': 'utf8',
@@ -53,9 +53,9 @@ export function getSongVkey(songmid) {
     'notice': 0,
     'platform': 'yqq.json',
     'needNewCode': 0,
-    'data': {"req":{"module":"CDN.SrfCdnDispatchServer","method":"GetCdnDispatch","param":{"guid":"1712033339","calltype":0,"userip":""}},"req_0":{"module":"vkey.GetVkeyServer","method":"CgiGetVkey","param":{"guid":"1712033339","songmid":[`{singmid}`],"songtype":[0],"uin":"384989937","loginflag":1,"platform":"20"}},"comm":{"uin":384989937,"format":"json","ct":24,"cv":0}}
+    'data': {"req":{"module":"CDN.SrfCdnDispatchServer","method":"GetCdnDispatch","param":{"guid":"1712033339","calltype":0,"userip":""}},"req_0":{"module":"vkey.GetVkeyServer","method":"CgiGetVkey","param":{"guid":"1712033339","songmid":[`${songmid}`],"songtype":[0],"uin":"0","loginflag":1,"platform":"20"}},"comm":{"uin":0,"format":"json","ct":24,"cv":0}}
   })
-  return axios.get('/api',{params:data}).then((res)=>{
+  return axios.get(url,{params:data}).then((res)=>{
     return Promise.resolve(res,data)
   })
   //return jsonp(url, datas)

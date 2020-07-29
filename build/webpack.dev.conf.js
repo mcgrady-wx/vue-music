@@ -10,6 +10,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const portfinder = require('portfinder')
 
+var express = require('express')// nodejs开发框架express，用来简化操作
+var axios = require('axios')//导入axios
+var app = express() // 创建node.js的express开发框架的实例
+var apiRoutes = express.Router() // 编写路由
+app.use('/api', apiRoutes)// 所有通过接口相关的api都会通过api这个路由导向到具体的路由
+
+
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
 
@@ -42,6 +49,46 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     quiet: true, // necessary for FriendlyErrorsPlugin
     watchOptions: {
       poll: config.dev.poll,
+    },
+    before(app){//设置代理
+      app.get('/api/vkey', function (req, res) {//抓取音乐的vkey
+        var url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+        axios.get(url, {
+          headers: {
+            referer: 'https://y.qq.com/portal/player.html',
+            host: 'u.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          res.json(response.data)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
+      
+      app.get('/api/lyric', function (req, res) {//抓取歌曲的歌词
+        var url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
+      
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          var ret = response.data
+          if (typeof ret === 'string') {
+            var reg = /^\w+\(({[^()]+})\)$/
+            var matches = ret.match(reg)
+            if (matches) {
+              ret = JSON.parse(matches[1])
+            }
+          }
+          res.json(ret)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
     }
   },
   plugins: [

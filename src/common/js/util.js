@@ -1,3 +1,6 @@
+//功能性通用小方法
+
+
 function getRandomInt(min, max) {//获得最小值-最大值的随机数 包括最大值和最小值
   return Math.floor(Math.random() * (max - min + 1) + min)
 }

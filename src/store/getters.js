@@ -20,8 +20,8 @@ const getters={
     currentIndex(state){//当前播放歌曲序号
         return state.currentIndex
     },
-    currentSong(state){//当前播放歌曲信息
-        return state.playlist[state.currentIndex]
+    currentSong(state){//当前播放歌曲信息 ，没有就返回一个空数组，避免刚点击的时候还没获取到报错
+        return state.playlist[state.currentIndex] || {}
     },
 
 }

@@ -90,6 +90,7 @@
   import progressCircle from '../../components/progress-circle/progress-circle.vue'
   import { playMode } from '../../store/config'
   import { shuffle } from '../../common/js/util.js'
+  import {getSongVkey} from '../../api/singer'
   
   export default {
       name:'player',
@@ -136,11 +137,15 @@
           if (!newSong.id) {
             return
           }
-          if (newSong.id === oldSong.id) {//判断切换的时候如果是同一首歌曲，直接跳过后面的程序
+          if (newSong.id === oldSong.id) {//判断切换模式的时候如果是同一首歌曲，直接跳过后面的程序
             return
           }
+          getSongVkey(newSong.mid).then((res)=>{//获取到了Vkey，但是匹配起来也无法访问，每次请求的vkey都不一样
+            //console.log(`http://223.221.162.25/amobile.music.tc.qq.com/C400${newSong.strMediaMid}.m4a?guid=1712033339&vkey=${res.data.req.data.vkey}&uin=0&fromtag=66`)
+          })
           this.$nextTick(()=>{//做延时
             this.$refs.audio.play()//播放歌曲
+            newSong.getLyric()//获取每首歌的歌词getLyric()方法已经用工厂创建song对象的时候添加到每个歌曲对象中，所有可以用当前歌曲对象直接调用
           })
         },
         playing(newPlay){//做歌曲的暂停、播放

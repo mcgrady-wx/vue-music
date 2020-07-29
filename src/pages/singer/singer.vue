@@ -2,8 +2,8 @@
     <div class="singer">
         <div class="listview">
             <mt-index-list >
-                <mt-index-section class="list-group" v-for="item in singers" :key="item.title" :index="item.title">
-                    <mt-cell v-for="singer in item.items" :key="singer.id" :title="singer.name" class='list-group-item' @click.native="gotoDetail(singer)">
+                <mt-index-section class="list-group" v-for="value in singers" :key="value.title" :index="value.title">
+                    <mt-cell v-for="singer in value.items" :key="singer.id" :title="singer.name" class='list-group-item' @click.native="gotoDetail(singer)">
                         <img v-lazy="singer.singerUrl" class="avatar">
                     </mt-cell>
                 </mt-index-section>
@@ -46,7 +46,7 @@ export default {
                 data=res.data.data.list
                 //遍历数据，添加到需要整理的对象中
                 data.forEach((item,index)=>{
-                    if (index<HOT_NUM) { //设置热门歌手
+                    if (index<HOT_NUM) { //设置热门歌手数量
                         singer.hot.items.push({
                             name: item.Fsinger_name,
                             id: item.Fsinger_mid,

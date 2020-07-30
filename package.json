@@ -13,6 +13,7 @@
     "axios": "^0.19.2",
     "better-scroll": "^1.15.2",
     "create-keyframe-animation": "^0.1.0",
+    "js-base64": "^3.3.3",
     "jsonp": "^0.2.1",
     "mint-ui": "^2.2.13",
     "vue": "^2.5.2",

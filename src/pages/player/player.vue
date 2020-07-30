@@ -15,15 +15,24 @@
               <h1 class="title" v-html="currentSong?currentSong.name:' '"></h1>
               <h2 class="subtitle" v-html="currentSong?currentSong.singer:' '"></h2>
             </div>
-            <!-- 中间CD部分 -->
+            <!-- 中间部分 -->
             <div class="middle">
+              <!-- CD部分 -->
               <div class="middle-l">
                 <div class="cd-wrapper" ref="cdWrapper"> 
                   <div class="cd" :class="cdCls">
                     <img class="image" :src="currentSong?currentSong.image:''">
                   </div>
                 </div>
-              </div>
+              </div>  
+              <!-- 歌词部分 -->
+               <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
+                  <div class="lyric-wrapper">
+                    <div v-if="currentLyric">
+                      <p ref="lyricLine" class="text" :class="{'current': currentLineNum ===index}" v-for="(line, index) in currentLyric.lines" :key="line.time">{{line.txt}}</p>
+                    </div>
+                  </div>
+                </scroll>
             </div>
             <!-- 按钮部分 -->
             <div class="bottom">
@@ -91,6 +100,8 @@
   import { playMode } from '../../store/config'
   import { shuffle } from '../../common/js/util.js'
   import {getSongVkey} from '../../api/singer'
+  import Lyric from 'lyric-parser' //歌词解析的方法，带API
+  import Scroll from '../../components/scroll/scroll'
   
   export default {
       name:'player',
@@ -99,6 +110,8 @@
           songReady:false, //歌曲是否准备好播放的标记
           currentTime:0, //当前播放时间
           radius: 32,//小播放按钮外圈的大小
+          currentLyric:null, //歌词
+          currentLineNum:0, //表示第几行歌词
         }
       },
       computed: {
@@ -145,7 +158,7 @@
           })
           this.$nextTick(()=>{//做延时
             this.$refs.audio.play()//播放歌曲
-            newSong.getLyric()//获取每首歌的歌词getLyric()方法已经用工厂创建song对象的时候添加到每个歌曲对象中，所有可以用当前歌曲对象直接调用
+            this.getLyric()//获取到歌词
           })
         },
         playing(newPlay){//做歌曲的暂停、播放
@@ -155,11 +168,35 @@
         },
       },
       methods: {
+        getLyric(){//解析歌词的方法
+            //获取每首歌的歌词getLyric()方法已经用工厂创建song对象的时候添加到每个歌曲对象中，所有可以用当前歌曲对象直接调用发起请求
+            this.currentSong.getLyric().then((lyric)=>{//得到歌词
+               if (this.currentSong.lyric !== lyric) {
+                  return
+                }
+              this.currentLyric = new Lyric(lyric, this.handleLyric) //使用Lyric方法解析歌词，创建实例，第二个参数是回调函数
+              //console.log(this.currentLyric)
+              if (this.playing) {//如果是播放状态，歌词也播放
+                this.currentLyric.play()//lyric-parser插件自带的API方法
+              } 
+            })
+
+        },
+        handleLyric({lineNum, txt}) { //解析歌词的回调函数，lineNum播放行数
+          this.currentLineNum = lineNum
+          if (lineNum > 5) {//如果已经播放到大于5行，高亮显示不在移动，歌词开始滚动
+            let lineEl = this.$refs.lyricLine[lineNum - 5] //固定在第几行的位置
+            this.$refs.lyricList.scrollToElement(lineEl, 1000) //滚动多少行
+          } else {//高亮滚动
+            this.$refs.lyricList.scrollTo(0, 0, 1000)
+          }
+          //this.playingLyric = txt
+        },
         end(){//当前播放列表播放完
             if (this.mode === playMode.loop) {
-              this.loop()
-            } else {
-              this.next()
+              this.loop() //单曲循环
+            } else { 
+              this.next() //前进到下一首
             }
         },
         loop(){//单曲循环，只需要把播放时间设置到最开始，然后启动播放
@@ -345,7 +382,8 @@
       },
       components:{
         progressBar,
-        progressCircle
+        progressCircle,
+        Scroll
       }
   }
 </script>

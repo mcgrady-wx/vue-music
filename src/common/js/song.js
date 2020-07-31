@@ -45,7 +45,7 @@ export function createSong(musicData) {//工厂方式创建歌曲对象
     album: musicData.albumname,
     duration: musicData.interval,
     image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albummid}.jpg?max_age=2592000`,
-    url: `http://223.221.162.25/amobile.music.tc.qq.com/C400${musicData.strMediaMid}.m4a?guid=1712033339&vkey=82E5B4477ECAD1652D74C8416CDC252E4C4A12D76E64E67A655BC77E3567EFA4958CA254FFD33A5A3FA5927FC74AA6C20F61B38A13B3AB92&uin=0&fromtag=66`,
+    url: `http://113.142.51.14/amobile.music.tc.qq.com/C400${musicData.strMediaMid}.m4a?guid=1712033339&vkey=7ADF59EB42A861F2F1D6C1FA6188AF73F8467AA1D19E0F61D5A79482F72E25F12F655220B804F03A8625FAFCBA1454B6F01A0E4FB1BA879F&uin=0&fromtag=66`,
     strMediaMid:musicData.strMediaMid
   })
 }

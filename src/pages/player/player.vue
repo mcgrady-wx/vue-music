@@ -16,13 +16,17 @@
               <h2 class="subtitle" v-html="currentSong?currentSong.singer:' '"></h2>
             </div>
             <!-- 中间部分 -->
-            <div class="middle">
+            <div class="middle" @touchstart.prevent="middleTouchStart" @touchmove.prevent="middleTouchMove" @touchend="middleTouchEnd">
               <!-- CD部分 -->
-              <div class="middle-l">
+              <div class="middle-l" ref="middleL">
                 <div class="cd-wrapper" ref="cdWrapper"> 
                   <div class="cd" :class="cdCls">
                     <img class="image" :src="currentSong?currentSong.image:''">
                   </div>
+                </div>
+                <!-- 当前歌词 -->
+                <div class="playing-lyric-wrapper">
+                  <div class="playing-lyric">{{playingLyric}}</div>
                 </div>
               </div>  
               <!-- 歌词部分 -->
@@ -36,6 +40,10 @@
             </div>
             <!-- 按钮部分 -->
             <div class="bottom">
+              <div class="dot-wrapper">
+                <span class="dot" :class="{'active':currentShow==='cd'}"></span>
+                <span class="dot" :class="{'active':currentShow==='lyric'}"></span>
+              </div>
               <div class="progress-wrapper">
                 <span class="time time-l">{{format(currentTime)}}</span>
                 <div class="progress-bar-wrapper">
@@ -100,7 +108,7 @@
   import { playMode } from '../../store/config'
   import { shuffle } from '../../common/js/util.js'
   import {getSongVkey} from '../../api/singer'
-  import Lyric from 'lyric-parser' //歌词解析的方法，带API
+  import Lyric from 'lyric-parser' //第三方歌词解析的方法，带API
   import Scroll from '../../components/scroll/scroll'
   
   export default {
@@ -112,6 +120,10 @@
           radius: 32,//小播放按钮外圈的大小
           currentLyric:null, //歌词
           currentLineNum:0, //表示第几行歌词
+          currentShow:'cd',
+          playingLyric:'', //当前歌词
+          timer:'' //保存计时器
+
         }
       },
       computed: {
@@ -153,13 +165,18 @@
           if (newSong.id === oldSong.id) {//判断切换模式的时候如果是同一首歌曲，直接跳过后面的程序
             return
           }
+          if (this.currentLyric) {//因为歌词插件里面有计时器，所以如果切歌的时候计时器一直在工作，要判断如果有歌词就停掉计时器，不然有BUG
+             this.currentLyric.stop()
+          }
           getSongVkey(newSong.mid).then((res)=>{//获取到了Vkey，但是匹配起来也无法访问，每次请求的vkey都不一样
             //console.log(`http://223.221.162.25/amobile.music.tc.qq.com/C400${newSong.strMediaMid}.m4a?guid=1712033339&vkey=${res.data.req.data.vkey}&uin=0&fromtag=66`)
           })
-          this.$nextTick(()=>{//做延时
+          //每次当前歌曲变化的时候，先清理掉上次的计时器
+          clearTimeout(this.timer)
+          this.timer =setTimeout(()=>{//做延时，防止BUG
             this.$refs.audio.play()//播放歌曲
             this.getLyric()//获取到歌词
-          })
+          },1000)
         },
         playing(newPlay){//做歌曲的暂停、播放
           this.$nextTick(()=>{//做延时
@@ -167,7 +184,72 @@
           })
         },
       },
+      created() {
+        this.touch={}//用于记录touch事件时候的一些共享属性
+      },
       methods: {
+        middleTouchStart(e){//事件按下
+            this.touch.initiated = true //表示已经按下
+            this.touch.startX = e.touches[0].pageX //按下地点距离X轴位置
+            this.touch.startY = e.touches[0].pageY //按下地点距离Y轴位置
+        },
+        middleTouchMove(e){//事件移动
+            if (!this.touch.initiated) {
+              return
+            }
+            const deltaX = e.touches[0].pageX - this.touch.startX //在X轴的移动距离
+            const deltaY = e.touches[0].pageY  - this.touch.startY //在Y轴的移动距离
+      
+            if (Math.abs(deltaY) > Math.abs(deltaX)) {//表示在Y轴的移动距离大于X轴，则认为是歌词在移动，不滑动
+              return
+            }
+            const left = this.currentShow === 'cd' ? 0 : -window.innerWidth //表示歌词所在DOM距离左边的距离，如果显示的CD表示0，如果是-window.innerWidth就表示页面显示的歌词
+            //获取到活动范围,向左拉最多到-window.innerWidth，向右拉最多到0
+            //向左拉deltaX为负数，向右拉为正数
+            const offsetWidth=Math.min(0,Math.max(-window.innerWidth, left + deltaX))
+            //获得移动距离在整个窗口的移动比例
+            this.touch.percent = Math.abs(offsetWidth / window.innerWidth)
+            //console.log(this.touch.percent) //向左拉比例是0-1 向右拉1-0
+            //console.log(offsetWidth)
+            //移动DOM
+            this.$refs.lyricList.$el.style['transform']=`translate3d(${offsetWidth}px,0,0)` //移动距离
+            this.$refs.lyricList.$el.style['webkitTransform']=`translate3d(${offsetWidth}px,0,0)` //移动距离
+            this.$refs.lyricList.$el.style['transition-duration'] = 0 //歌词过度时间
+            this.$refs.middleL.style.opacity=1-this.touch.percent //CD透明度
+            this.$refs.middleL.style['transition-duration'] = 0 //CD过度时间
+
+        },
+        middleTouchEnd(){//事件结束
+          let offsetWidth
+          let opacity
+          if (this.currentShow==='cd') {//是CD画面，向左拉
+            if (this.touch.percent>0.2) {//拉动距离大于20%的时候，就要显示歌词画面了
+                offsetWidth=-window.innerWidth
+                opacity=0
+                this.currentShow = 'lyric'
+            } else {//还是显示原来的画面
+                offsetWidth=0
+                opacity=1
+            }
+          } else {//是歌词页面，向右拉
+            if (this.touch.percent<0.8) {//拉动距离小于80%的时候，就要显示CD画面了
+                offsetWidth=0
+                opacity=1
+                this.currentShow = 'cd'
+            } else {//还是显示原来的画面
+                offsetWidth=-window.innerWidth
+                opacity=0
+            }
+          }
+          //移动DOM
+          this.$refs.lyricList.$el.style['transform']=`translate3d(${offsetWidth}px,0,0)` //移动距离
+          this.$refs.lyricList.$el.style['webkitTransform']=`translate3d(${offsetWidth}px,0,0)` //移动距离
+          this.$refs.lyricList.$el.style['transition-duration'] = '300ms' //歌词过度时间
+          this.$refs.middleL.style.opacity=opacity //CD透明度
+          this.$refs.middleL.style['transition-duration'] = '300ms' //CD过度时间
+
+
+        },
         getLyric(){//解析歌词的方法
             //获取每首歌的歌词getLyric()方法已经用工厂创建song对象的时候添加到每个歌曲对象中，所有可以用当前歌曲对象直接调用发起请求
             this.currentSong.getLyric().then((lyric)=>{//得到歌词
@@ -179,10 +261,14 @@
               if (this.playing) {//如果是播放状态，歌词也播放
                 this.currentLyric.play()//lyric-parser插件自带的API方法
               } 
+            }).catch(()=>{//如请求失败，把歌词数据置为空
+              this.currentLyric=null //歌词设置为空
+              this.currentLineNum=0  //显示第0行
+              this.playingLyric=""   //当前显示的歌词设置为空
             })
 
         },
-        handleLyric({lineNum, txt}) { //解析歌词的回调函数，lineNum播放行数
+        handleLyric({lineNum, txt}) { //解析歌词的回调函数，lineNum播放行数，当前行的歌词内容
           this.currentLineNum = lineNum
           if (lineNum > 5) {//如果已经播放到大于5行，高亮显示不在移动，歌词开始滚动
             let lineEl = this.$refs.lyricLine[lineNum - 5] //固定在第几行的位置
@@ -190,7 +276,7 @@
           } else {//高亮滚动
             this.$refs.lyricList.scrollTo(0, 0, 1000)
           }
-          //this.playingLyric = txt
+          this.playingLyric = txt
         },
         end(){//当前播放列表播放完
             if (this.mode === playMode.loop) {
@@ -202,6 +288,10 @@
         loop(){//单曲循环，只需要把播放时间设置到最开始，然后启动播放
             this.$refs.audio.currentTime=0
             this.$refs.audio.play()
+            //当重新开始的时候歌词不会重新开始，需要设置
+            if (this.currentLyric) {//如果有歌词
+              this.currentLyric.seek(0) //lyric-parser插件自带的API方法
+            }
         },
         changeMode(){//改变播放模式
             let mode=(this.mode+1)%3
@@ -232,35 +322,52 @@
             this.songReady=true
         },
         prev(){//后退
-          if (!this.songReady) {//没准备好，直接他return
+          if (!this.songReady) {//没准备好，直接return
             return
           }
-          let index=this.currentIndex-1
-          if (index===-1) {
-            index=this.playlist.length-1
+          if (this.playlist.length === 1) {//如果播放列表只有1首歌，那么就直接执行单曲播放
+            this.loop()
+            return
+          } else {
+            let index=this.currentIndex-1
+            if (index===-1) {
+              index=this.playlist.length-1
+            }
+            if (!this.playing) {//暂停
+              //启动播放
+              this.handleplay()
+            }
+            this.getCurrentIndex(index)
           }
-          if (!this.playing) {//暂停
-            //启动播放
-            this.handleplay()
-          }
-          this.getCurrentIndex(index)
+
+          this.songReady = false //置为false，当准备好后播放下一首
         },
         next(){//前进
-           if (!this.songReady) {//没准备好，直接他return
+           if (!this.songReady) {//没准备好，直接return
             return
           }
-          let index=this.currentIndex+1
-          if (index===this.playlist.length) {
-            index=0
+          if (this.playlist.length === 1) {//如果播放列表只有1首歌，那么就直接执行单曲播放
+            this.loop()
+            return
+          } else {
+            let index=this.currentIndex+1
+            if (index===this.playlist.length) {
+              index=0
+            }
+            if (!this.playing) {//暂停
+              //启动播放
+              this.handleplay()
+            }
+            this.getCurrentIndex(index)
           }
-          if (!this.playing) {//暂停
-            //启动播放
-            this.handleplay()
-          }
-          this.getCurrentIndex(index)
+
+          this.songReady = false //置为false，当准备好后播放下一首
         },
         handleplay(){//暂停、播放
           this.getPlaying(!this.playing)
+          if (this.currentLyric) {//如果有歌词，歌曲暂停歌词也暂停
+            this.currentLyric.togglePlay() //lyric-parser插件自带的API方法
+          }
         },
         back(){//显示小播放器
           this.getFullScreen(false)
@@ -286,11 +393,15 @@
           }
           return num
         },
-        percentChange(percent){//处理返回的比例值，得到新的播放时间
-          this.$refs.audio.currentTime = percent*this.currentSong.duration //通过audio的属性currentTime 设置新的播放时间，currentSong.duration是歌曲总时长
+        percentChange(percent){//处理返回的比例值，得到新的播放时间，同时改变歌词的显示
+          const time=percent*this.currentSong.duration//获得新的播放时间，currentSong.duration是歌曲总时长
+          this.$refs.audio.currentTime = time //通过audio的属性currentTime 设置新的播放时间
           if (!this.playing) {//如果是暂停
              //启动播放
             this.handleplay()
+          }
+          if (this.currentLyric) {//如果有歌词，让歌词显示相对应的位置
+            this.currentLyric.seek(time*1000) //lyric-parser插件自带的API方法
           }
         },
         enter(el,done){
@@ -505,7 +616,7 @@
       .bottom
         position: absolute
         bottom: 50px
-        width: 100%
+        width: 100% 
         .dot-wrapper
           text-align: center
           font-size: 0

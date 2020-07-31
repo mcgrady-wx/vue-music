@@ -1,37 +1,42 @@
 <template>
-    <div class="recommend">
-        <!--mint-ui 轮播图 -->
-        <mt-swipe :auto="4000">
-            <mt-swipe-item v-for="(img, index) in imgs" :key="index">
-                <img :src="img.banner">
-            </mt-swipe-item>
-        </mt-swipe>
-        <div class="recommend-list">
-          <h1 class="list-title">热门歌单推荐</h1>
-          <!-- keep-alive是vue内置标签，快速实现页面缓存，避免二次请求数据 -->
-          <keep-alive>
-            <ul>
-              <li v-for="item in disclist" :key="item.dissid" class="item">
-                <div class="icon">
-                  <img width="60" height="60" v-lazy="item.imgurl">
-                </div>
-                <div class="text">
-                  <h2 class="name" v-html="item.creator.name"></h2>
-                  <p class="desc" v-html="item.dissname"></p>
-                </div>
-              </li>
-            </ul>
-          </keep-alive>
+    <div class="recommend" ref="recommend">
+      <scroll ref="scroll" class="recommend-content" :data="discList">
+        <div>
+          <!--mint-ui 轮播图 -->
+          <mt-swipe :auto="4000">
+              <mt-swipe-item v-for="(img, index) in imgs" :key="index">
+                  <img :src="img.banner">
+              </mt-swipe-item>
+          </mt-swipe>
+          <div class="recommend-list">
+            <h1 class="list-title">热门歌单推荐</h1>
+            <!-- keep-alive是vue内置标签，快速实现页面缓存，避免二次请求数据 -->
+            <keep-alive>
+              <ul>
+                <li v-for="item in disclist" :key="item.dissid" class="item">
+                  <div class="icon">
+                    <img width="60" height="60" v-lazy="item.imgurl">
+                  </div>
+                  <div class="text">
+                    <h2 class="name" v-html="item.creator.name"></h2>
+                    <p class="desc" v-html="item.dissname"></p>
+                  </div>
+                </li>
+              </ul>
+            </keep-alive>
+          </div>
         </div>
         <div class="loading-container" v-show="!disclist.length">
             <loading></loading>
         </div>
+      </scroll>
     </div>
 </template>
 
 <script>
 import loading from '../../components/loading/loading'
 import base from '../../api/base'
+import Scroll from '../../components/scroll/scroll'
 export default {
     name:"recommend",
     data(){
@@ -63,7 +68,8 @@ export default {
       this.getDiscList()  
     },
     components:{
-        loading
+        loading,
+        Scroll
     }
 }
 </script>
@@ -71,6 +77,13 @@ export default {
 <style lang="stylus" scoped>
  @import "../../common/stylus/variable"
 .recommend
+  position: fixed
+  width: 100%
+  top: 88px
+  bottom: 0
+  .recommend-content
+    height: 100%
+    overflow: hidden
     .mint-swipe
         height:150px
         .mint-swipe-item

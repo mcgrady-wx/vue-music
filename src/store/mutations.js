@@ -19,6 +19,9 @@ const mutations={
     },
     getCurrentIndex(state,index){//获得当前播放歌曲序号
         state.currentIndex=index
+    },
+    getDisc(state,obj){//获得推荐歌单
+        state.disc=obj
     }
 }
 

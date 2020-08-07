@@ -23,6 +23,9 @@ const getters={
     currentSong(state){//当前播放歌曲信息 ，没有就返回一个空数组，避免刚点击的时候还没获取到报错
         return state.playlist[state.currentIndex] || {}
     },
+    disc(state){//推荐歌单
+        return state.disc
+    },
 
 }
 

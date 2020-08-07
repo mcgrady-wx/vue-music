@@ -1,6 +1,6 @@
 <template>
-    <div class="recommend" ref="recommend">
-      <scroll ref="scroll" class="recommend-content" :data="discList">
+    <div class="recommend" ref="recommend" :style="playlist.length?styleObject:'0'">
+      <scroll ref="scroll" class="recommend-content" :data="disclist">
         <div>
           <!--mint-ui 轮播图 -->
           <mt-swipe :auto="4000">
@@ -13,13 +13,13 @@
             <!-- keep-alive是vue内置标签，快速实现页面缓存，避免二次请求数据 -->
             <keep-alive>
               <ul>
-                <li v-for="item in disclist" :key="item.dissid" class="item">
+                <li v-for="item in disclist" :key="item.content_id" class="item" @click="gotodisc(item)">
                   <div class="icon">
-                    <img width="60" height="60" v-lazy="item.imgurl">
+                    <img width="60" height="60" v-lazy="item.cover">
                   </div>
                   <div class="text">
-                    <h2 class="name" v-html="item.creator.name"></h2>
-                    <p class="desc" v-html="item.dissname"></p>
+                    <h2 class="name" v-html="item.title"></h2>
+                    <p class="desc" v-html="item.username"></p>
                   </div>
                 </li>
               </ul>
@@ -30,6 +30,9 @@
             <loading></loading>
         </div>
       </scroll>
+      <transition name="slide">
+        <router-view></router-view>
+      </transition>
     </div>
 </template>
 
@@ -37,6 +40,8 @@
 import loading from '../../components/loading/loading'
 import base from '../../api/base'
 import Scroll from '../../components/scroll/scroll'
+import {getDiscList} from '../../api/recommend'
+import {mapGetters,mapMutations} from 'vuex'
 export default {
     name:"recommend",
     data(){
@@ -49,23 +54,44 @@ export default {
                { banner:require('../../common/image/banner4.jpg')}
             ],
             //歌单推存列表
-            disclist:[]
+            disclist:[],
+            styleObject:{//用于当打开播放器后，列表拉到最下面会被挡，如打开了播放器表示已经有播放列表，如果有播放列表那么bottom变成60
+              bottom:'60px'
+            }
         }
     },
     methods: {
-        getDiscList(){
-            this.$axios.get(base.disclist).then((res)=>{
-                //console.log(res.data.data.list)
-                this.disclist=res.data.data.list
+        _getDiscList(){
+            // this.$axios.get(base.disclist).then((res)=>{//使用static中的模拟数据
+            //     //console.log(res.data.data.list)
+            //     this.disclist=res.data.data.list
+            // })
+            getDiscList().then((res)=>{//线上真实数据
+              //console.log(res.recomPlaylist.data.v_hot)
+              this.disclist=res.recomPlaylist.data.v_hot
             })
-        }
+        },
+        gotodisc(item){//跳转页面
+          this.$router.push(`/recommend/${item.content_id}`)
+          //修改推荐歌单信息
+          this.getDisc(item)
+        },
+        ...mapMutations([
+          'getDisc'
+        ])
     },
     mounted() {
       // //测试loading
       // setTimeout(()=>{
       //   this.getDiscList() 
       // },2000)
-      this.getDiscList()  
+      this._getDiscList()  
+    },
+    computed: {
+      //获得播放列表，用于判断是否开启了播放器
+      ...mapGetters([
+        'playlist'
+      ])
     },
     components:{
         loading,
@@ -123,5 +149,9 @@ export default {
       position: absolute
       width: 100%
       top: 50%
-      transform: translateY(-50%)          
+      transform: translateY(-50%)
+    .slide-enter-active, .slide-leave-active
+      transition: all 0.3s
+    .slide-enter, .slide-leave-to
+      transform: translate3d(100%, 0, 0)        
 </style>

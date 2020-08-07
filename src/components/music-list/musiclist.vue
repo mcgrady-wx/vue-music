@@ -20,7 +20,7 @@
     <!-- 用于拉动遮住背景 -->
     <div class="bg-layer" ref="layer"></div>
     <!-- 歌曲列表区域 -->
-    <music-scroll :data="data" @scroll="scroll" :listen-scroll="listenScroll" :probe-type="probeType" class="list" ref="list">
+    <music-scroll :data="data" @scroll="scroll" :listen-scroll="listenScroll" :probe-type="probeType" class="list" ref="list" :style="playlist.length?styleObject:'0'">
       <div class="song-list-wrapper">
         <song-list :data="data"></song-list>
       </div>
@@ -43,7 +43,7 @@
   import loading from '../loading/loading.vue'
   import songList from '../song-list/song-list.vue'
   import musicScroll from '../scroll/scroll.vue'
-  import {mapActions} from 'vuex'
+  import {mapActions,mapGetters} from 'vuex'
   const RESERVED_HEIGHT = 40 //最多滚动到距离顶部40像素
   export default {
       name:'musiclist',
@@ -53,6 +53,9 @@
           listenScroll : true,
           scrollY:0,//滚动距离
           bgHeight:0,//背景图片的高度
+          styleObject:{//用于当打开播放器后，列表拉到最下面会被挡，如打开了播放器表示已经有播放列表，如果有播放列表那么bottom变成60
+            bottom:'60px'
+          }
         }
       },
       mounted(){//获得背景图片的高度，设置歌曲列表距离顶部的位置
@@ -65,7 +68,12 @@
       computed: {
         bgStyle(){//设置背景图片
           return `background-image:url(${this.bgImg})`
-        }
+        },
+        //获得播放列表，用于判断是否开启了播放器
+        ...mapGetters([
+          'playlist'
+        ])
+
       },
       watch:{
         scrollY(newVal){//监控scrollY值的变化，当变化的时候移动DOM元素layer

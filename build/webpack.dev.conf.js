@@ -65,6 +65,21 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           console.log(e)
         })
       })
+
+      app.get('/api/getDiscList', function (req, res) {//抓取推荐歌单
+        var url = 'https://u.y.qq.com/cgi-bin/musics.fcg'
+        axios.get(url, {
+          headers: {
+            referer: 'https://y.qq.com/?ADTAG=myqq',
+            host: 'u.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          res.json(response.data)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
       
       app.get('/api/lyric', function (req, res) {//抓取歌曲的歌词
         var url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'

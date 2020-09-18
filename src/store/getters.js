@@ -26,7 +26,9 @@ const getters={
     disc(state){//推荐歌单
         return state.disc
     },
-
+    toplist(state){//top歌单信息
+        return state.toplist
+    }
 }
 
 

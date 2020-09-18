@@ -22,7 +22,7 @@
     <!-- 歌曲列表区域 -->
     <music-scroll :data="data" @scroll="scroll" :listen-scroll="listenScroll" :probe-type="probeType" class="list" ref="list" :style="playlist.length?styleObject:'0'">
       <div class="song-list-wrapper">
-        <song-list :data="data"></song-list>
+        <song-list :data="data" :rank="rank"></song-list>
       </div>
       <div v-show="!data.length" class="loading-container">
         <loading></loading>
@@ -144,7 +144,24 @@
         songList,
         musicScroll
       },
-      props:['title','data','bgImg'],
+      props: {
+        bgImg: {
+          type: String,
+          default: ''
+        },
+        data: {
+          type: Array,
+          default: []
+        },
+        title: {
+          type: String,
+          default: ''
+        },
+        rank: {//默认false，表示歌曲列表不显示排行榜
+          type: Boolean,
+          default: false
+        }
+      },
       /*data(){
         return {
           loop:"",//计数器

@@ -22,6 +22,9 @@ const mutations={
     },
     getDisc(state,obj){//获得推荐歌单
         state.disc=obj
+    },
+    getTopList(state,toplist){//获得top歌单信息
+        state.toplist=toplist
     }
 }
 

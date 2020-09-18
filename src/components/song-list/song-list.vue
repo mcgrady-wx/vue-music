@@ -2,6 +2,9 @@
   <div class="song-list">
     <ul>
       <li @click="selectItem(song,index)" class="item" v-for="(song,index) in data" :key="song.id">
+         <div class="rank" v-show="rank">
+          <span :class="getRankCls(index)" v-text="getRankText(index)"></span>
+        </div>
         <div class="content">
           <h2 class="name">{{song.name}}</h2>
           <p class="desc">{{song.singer}}.{{song.album}}</p>
@@ -16,7 +19,16 @@
 
   export default {
     name:'songlist',
-    props:["data"],
+    props: {
+      data: {
+        type: Array,
+        default: []
+      },
+      rank: {//用于来表示是否显示奖杯，默认false不显示
+        type: Boolean,
+        default: false
+      }
+    },
     methods: {
       ...mapActions([
         'selectPlay'
@@ -27,6 +39,18 @@
           list:this.data, //歌曲列表
           index
         })
+      },
+      getRankCls(index) {//前三显示奖杯，后面显示数值
+        if (index <= 2) {
+          return `icon icon${index}`
+        } else {
+          return 'text'
+        }
+      },
+      getRankText(index) { //显示数值
+        if (index > 2) {
+          return index + 1
+        }
       }
     },
   }

@@ -25,7 +25,7 @@
         type: Array,
         default: null
       },
-      pullup: {
+      pullup: {//是否上拉刷新
         type: Boolean,
         default: false
       },
@@ -60,7 +60,7 @@
           })
         }
 
-        if (this.pullup) {
+        if (this.pullup) {//上拉刷新
           this.scroll.on('scrollEnd', () => {
             if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
               this.$emit('scrollToEnd')

@@ -59,6 +59,7 @@ export function search(query, page, zhida, perpage) {
     platform: 'h5'
   })
   return axios.get(url,{params:data}).then((res)=>{
+    //处理得到的数据，把callback去掉，然后再解析数据
     var strD = res.data.replace('callback(', '')
 		var str = strD.substring(0, strD.length - 1)
     var strF = JSON.parse(str)

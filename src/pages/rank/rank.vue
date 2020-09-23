@@ -75,7 +75,7 @@ export default {
 
 <style lang="stylus" scoped>
  @import "../../common/stylus/variable"
-
+ @import "../../common/stylus/mixin"
 
   .rank
     position: fixed

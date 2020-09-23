@@ -16,7 +16,7 @@ export function shuffle(arr) {//打乱数组
   return _arr
 }
 
-export function debounce(func, delay) {
+export function debounce(func, delay) {//请求节流，节约请求次数
   let timer
 
   return function (...args) {

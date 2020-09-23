@@ -29,7 +29,7 @@
         type: Boolean,
         default: false
       },
-      beforeScroll: {
+      beforeScroll: {//是否滚动的时候收起小键盘
         type: Boolean,
         default: false
       },
@@ -68,7 +68,7 @@
           })
         }
 
-        if (this.beforeScroll) {
+        if (this.beforeScroll) {//滚动的时候收起小键盘
           this.scroll.on('beforeScrollStart', () => {
             this.$emit('beforeScroll')
           })

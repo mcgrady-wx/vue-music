@@ -7,6 +7,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+  import {debounce} from '../../common/js/util'  //请求节流，节约请求次数
 
   export default {
     props: {
@@ -27,21 +28,21 @@
       setQuery(query) {//设置输入框内容，给父元素调用
         this.query = query
       },
-      blur() {
+      blur() {//优化失去焦点的时候收起小键盘，对外的方法
         this.$refs.query.blur()
       }
     },
     created() {
-      this.$watch('query', (newQuery) => {
+      this.$watch('query', debounce((newQuery) => {
         this.$emit('query', newQuery)
-      })
+      },200))
     }
   }
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import "../../common/stylus/variable"
-
+  @import "../../common/stylus/mixin"
   .search-box
     display: flex
     align-items: center

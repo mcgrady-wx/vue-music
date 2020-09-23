@@ -102,6 +102,7 @@ export default {
 
 <style lang="stylus" scoped>
  @import "../../common/stylus/variable"
+ @import "../../common/stylus/mixin"
 .recommend
   position: fixed
   width: 100%

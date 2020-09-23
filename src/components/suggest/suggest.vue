@@ -1,5 +1,5 @@
 <template>
-  <scroll ref="suggest" :pullup="pullup" class="suggest" @scrollToEnd="searchMore">
+  <scroll ref="suggest" :pullup="pullup" class="suggest" @scrollToEnd="searchMore" :beforeScroll="beforeScroll" @beforeScroll="listScroll">
     <ul class="suggest-list">
       <li @click="selectItem(item)" class="suggest-item" v-for="(item,index) in result" :key="index">
         <div class="icon">
@@ -11,6 +11,9 @@
       </li>
       <loading v-show="hasMore" title=""></loading>
     </ul>
+    <div v-show="!hasMore && !result.length" class="no-result-wrapper">
+      <no-result title="抱歉，暂无搜索结果"></no-result>
+    </div>
   </scroll>
 </template>
 
@@ -19,6 +22,8 @@ import {search} from '../../api/search'
 import {createSong} from '../../common/js/song'
 import Scroll from '../../components/scroll/scroll'
 import Loading from '../../components/loading/loading'
+import {mapMutations,mapActions} from 'vuex'
+import NoResult from '../../components/no-result/no-result'
 
   const TYPE_SINGER = 'singer'
   const perpage = 20
@@ -38,12 +43,21 @@ import Loading from '../../components/loading/loading'
       return {
         page: 1,
         pullup: true,//设置上拉刷新
-        beforeScroll: true,
+        beforeScroll: true, //启动滚动列表时候收起小键盘
         hasMore: true,
         result: []
       }
     },
     methods: {
+      ...mapMutations([
+            'getSingerDetail'
+        ]),
+      ...mapActions([
+        'insertSong'
+      ]),
+      listScroll() {
+        this.$emit('listScroll')
+      },
       _search() {//发起搜索请求
         this.page = 1//首次请求确保请求的是第一页
         this.hasMore = true//允许上拉刷新
@@ -65,7 +79,7 @@ import Loading from '../../components/loading/loading'
         search(this.query, this.page, this.showSinger, perpage).then((res) => {
           if (res.code === 0) {
             this.result =this.result.concat(this._genResult(res.data)) 
-            //console.log(this.result)
+            console.log(this.result)
             this._checkMore(res.data)//判断是否没有数据了
           }
         })
@@ -95,20 +109,21 @@ import Loading from '../../components/loading/loading'
         })
         return ret
       },
-      selectItem(item) {
-        if (item.type === TYPE_SINGER) {
-          const singer = new Singer({
+      selectItem(item) {//点击跳转
+        if (item.type === TYPE_SINGER) {//如果点的是歌手
+          const singer = {
+            name: item.singername,
             id: item.singermid,
-            name: item.singername
-          })
+            singerUrl:`https://y.gtimg.cn/music/photo_new/T001R300x300M000${item.singermid}.jpg?max_age=2592000`
+          }
           this.$router.push({
             path: `/search/${singer.id}`
           })
-          this.setSinger(singer)
-        } else {
+          this.getSingerDetail(singer)//保存歌手信息到vuex中
+        } else {//如果点击的是歌曲，把歌曲保存到播放列表中并播放
           this.insertSong(item)
         }
-        this.$emit('select', item)
+        this.$emit('select', item)//调用父元素传递过来的方法，把数据保存到vuex和本地
       },
       getIconCls(item) {//根据类型设置列表样式
         if (item.type === TYPE_SINGER) {
@@ -132,14 +147,15 @@ import Loading from '../../components/loading/loading'
     },
     components:{
       Scroll,
-      Loading
+      Loading,
+      NoResult
     }
   }
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import "../../common/stylus/variable"
-
+  @import "../../common/stylus/mixin"
   .suggest
     height: 100%
     overflow: hidden

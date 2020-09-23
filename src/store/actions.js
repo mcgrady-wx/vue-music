@@ -1,5 +1,6 @@
 import { shuffle } from '../common/js/util.js'
 import { playMode } from './config'
+import {saveSearch, clearSearch, deleteSearch, savePlay, saveFavorite, deleteFavorite} from '../common/js/cache'
 
 function findIndex(list, song) {//的到歌曲在列表中的下标
     return list.findIndex((item) => {
@@ -29,6 +30,56 @@ const actions={
         commit('getPlaying',true)//设置开始播放
         commit('getFullScreen',true)//设置全屏播放
     },
+    insertSong({commit,state},song){//添加歌曲到播放列表，并且播放当前添加的歌曲
+        let playlist = state.playlist.slice() //获得当前的播放列表
+        let sequenceList = state.sequenceList.slice() //获得当前顺序播放的播放列表
+        let currentIndex = state.currentIndex //获得当前播放歌曲的下标
+
+        // 记录当前歌曲
+        let currentSong = playlist[currentIndex]
+        //处理playlist播放列表
+        // 查找当前列表中是否有待插入的歌曲并返回其索引
+        let fpIndex = findIndex(playlist, song)
+        // 因为是在当前播放歌曲后面插入歌曲，所以索引+1
+        currentIndex++
+        // 插入歌曲
+        playlist.splice(currentIndex, 0, song)
+        //判断当前列表是否存在要添加的歌曲，如果当前添加的歌曲已经存在与播放列表，判断插入的位置是在原歌曲的前面或者后面，删除原歌曲
+        if (fpIndex>-1) {//存在
+            if (currentIndex>fpIndex) {//插入的位置是在原歌曲后面，表示原歌曲索引不变，直接删除
+                playlist.splice(fpIndex, 1) //删除原歌曲
+                currentIndex-- //数组删除了一个元素，当前播放的歌曲索引就要减一
+            } else {//插入的位置是在原歌曲前面，表示原歌曲向后移动一位，索引加一，因为插入的歌曲在前面，当前播放的歌曲下标索引不变
+                playlist.splice(fpIndex + 1, 1) 
+            }
+        }
+        
+        //同理处理sequenceList顺序播放列表
+        //获得将要插入歌曲的插入点下标，在当前播放歌曲的后面一位
+        let currentSIndex = findIndex(sequenceList, currentSong) + 1
+        //查找当前列表中是否有待插入的歌曲并返回其索引
+        let fsIndex = findIndex(sequenceList, song)
+        //插入歌曲
+        sequenceList.splice(currentSIndex, 0, song)
+        //判断当前列表是否存在要添加的歌曲，如果当前添加的歌曲已经存在与播放列表，判断插入的位置是在原歌曲的前面或者后面，删除原歌曲
+        if (fsIndex > -1) {//存在
+            if (currentSIndex > fsIndex) {//插入的位置是在原歌曲后面，表示原歌曲索引不变，直接删除
+                sequenceList.splice(fsIndex, 1)
+            } else {//插入的位置是在原歌曲前面，表示原歌曲向后移动一位，索引加一，因为插入的歌曲在前面，当前播放的歌曲下标索引不变
+                sequenceList.splice(fsIndex + 1, 1)
+            }
+        }
+
+        //设置mutations
+        commit('getPlaylist',playlist)//设置播放列表
+        commit('getSequenceList',sequenceList)//设置顺序播放列表
+        commit('getCurrentIndex',currentIndex)//设置当前播放歌曲序号
+        commit('getPlaying',true)//设置开始播放
+        commit('getFullScreen',true)//设置全屏播放
+    },
+    saveSearchHistory({commit},query){//得到新的搜索历史记录，并保存到本地
+        commit('getSearchHistory',saveSearch(query)) 
+    }
 }
 
 export default actions

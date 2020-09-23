@@ -18,8 +18,9 @@
             </scroll>
         </div>
         <div class="search-result" v-show="query" ref="searchResult">
-            <suggest ref="suggest" :query="query"></suggest>
+            <suggest ref="suggest" :query="query" @listScroll="blurInput" @select="saveSearch"></suggest>
         </div>
+        <router-view></router-view>
     </div>
 </template>
 
@@ -28,6 +29,7 @@ import Scroll from '../../components/scroll/scroll'
 import SearchBox from '../../components/search-box/search-box'
 import suggest from '../../components/suggest/suggest'
 import {getHotKey} from '../../api/search'
+import {mapActions} from 'vuex'
 export default {
     name:"search",
     data(){
@@ -41,6 +43,9 @@ export default {
       this._getHotKey()
     },
     methods: {
+        ...mapActions([
+            'saveSearchHistory'
+        ]),
         _getHotKey(){
             getHotKey().then(res=>{
                 //console.log(res)
@@ -54,6 +59,12 @@ export default {
         },
         onQueryChange(query){//通过自定义函数，子组件用emit事件把新的query值返回给父元素
             this.query=query
+        },
+        blurInput(){//优化输入框失去焦点的时候收起小键盘
+            this.$refs.searchBox.blur()
+        },
+        saveSearch(item){//通过传递给的子元素的自定义方法，得到返回的数据，保存搜索的历史记录
+            this.saveSearchHistory(item)
         }
     },
     components:{
@@ -67,6 +78,7 @@ export default {
 
 <style lang="stylus" scoped>
 @import "../../common/stylus/variable"
+@import "../../common/stylus/mixin"
 .search
     .search-box-wrapper
       margin: 20px

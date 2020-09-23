@@ -25,6 +25,9 @@ const mutations={
     },
     getTopList(state,toplist){//获得top歌单信息
         state.toplist=toplist
+    },
+    getSearchHistory(state,history){//获得搜索的历史纪录
+        state.searchHistory=history
     }
 }
 

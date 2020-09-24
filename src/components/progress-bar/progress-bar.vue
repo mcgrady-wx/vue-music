@@ -1,4 +1,5 @@
 <template>
+  <!-- 歌曲进度条组件 -->
   <div class="progress-bar" ref="progressBar" @click="progressClick">
     <div class="bar-inner">
        <!-- 显示的进度条  -->

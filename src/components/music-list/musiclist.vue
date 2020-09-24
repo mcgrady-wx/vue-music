@@ -1,4 +1,5 @@
 <template>
+  <!-- 歌手、歌单详情页面 -->
   <div class="music-list">
     <!-- 返回上一级图标 -->
     <div class="back" @click="gotoback">

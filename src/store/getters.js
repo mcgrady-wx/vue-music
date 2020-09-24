@@ -28,6 +28,9 @@ const getters={
     },
     toplist(state){//top歌单信息
         return state.toplist
+    },
+    searchHistory(state){//搜索历史记录
+        return state.searchHistory
     }
 }
 

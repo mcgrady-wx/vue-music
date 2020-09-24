@@ -1,4 +1,5 @@
 <template>
+    <!-- 推荐页面的推荐歌单详情页 -->
     <transition name="slide">
         <music-list :data="songs" :title="title" :bgImg="bgImage" @click="_getSongList"></music-list>
     </transition>

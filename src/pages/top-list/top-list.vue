@@ -1,4 +1,5 @@
 <template>
+    <!-- 歌曲排行页面 -->
     <music-list :title="title" :bgImg='bgImage' :data="songs" :rank="rank"></music-list>
 </template>
 

@@ -1,4 +1,5 @@
 <template>
+  <!-- 无搜索结果组件 -->
   <div class="no-result">
     <div class="no-result-icon"></div>
     <p class="no-result-text">{{title}}</p>

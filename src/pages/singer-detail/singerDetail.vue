@@ -1,4 +1,5 @@
 <template>
+    <!-- 歌手详情页面 -->
     <div class="singer-detail">
         <music-list :data="list" :title="singerDetail.name" :bgImg="singerDetail.singerUrl"></music-list>
     </div>

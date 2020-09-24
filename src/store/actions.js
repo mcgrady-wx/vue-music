@@ -77,8 +77,14 @@ const actions={
         commit('getPlaying',true)//设置开始播放
         commit('getFullScreen',true)//设置全屏播放
     },
-    saveSearchHistory({commit},query){//得到新的搜索历史记录，并保存到本地
+    saveSearchHistory({commit},query){//新增历史记录，得到新的搜索历史记录，并保存到本地
         commit('getSearchHistory',saveSearch(query)) 
+    },
+    deleteSearchHistory({commit},query){//删除历史记录，得到新的搜索历史记录，并保存到本地
+        commit('getSearchHistory',deleteSearch(query)) 
+    },
+    clearSearchHistory({commit}){//清空历史记录，并保存到本地
+        commit('getSearchHistory',clearSearch()) 
     }
 }
 

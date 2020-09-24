@@ -1,4 +1,5 @@
 <template>
+  <!-- 搜索结果页面 -->
   <scroll ref="suggest" :pullup="pullup" class="suggest" @scrollToEnd="searchMore" :beforeScroll="beforeScroll" @beforeScroll="listScroll">
     <ul class="suggest-list">
       <li @click="selectItem(item)" class="suggest-item" v-for="(item,index) in result" :key="index">
@@ -79,7 +80,7 @@ import NoResult from '../../components/no-result/no-result'
         search(this.query, this.page, this.showSinger, perpage).then((res) => {
           if (res.code === 0) {
             this.result =this.result.concat(this._genResult(res.data)) 
-            console.log(this.result)
+            //console.log(this.result)
             this._checkMore(res.data)//判断是否没有数据了
           }
         })
@@ -123,7 +124,7 @@ import NoResult from '../../components/no-result/no-result'
         } else {//如果点击的是歌曲，把歌曲保存到播放列表中并播放
           this.insertSong(item)
         }
-        this.$emit('select', item)//调用父元素传递过来的方法，把数据保存到vuex和本地
+        this.$emit('select', item)//调用父元素传递过来的自定义方法，把数据保存到vuex和本地
       },
       getIconCls(item) {//根据类型设置列表样式
         if (item.type === TYPE_SINGER) {

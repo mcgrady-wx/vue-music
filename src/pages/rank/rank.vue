@@ -1,4 +1,5 @@
 <template>
+    <!-- 排行榜页面 -->
     <div class="rank" :style="playlist.length?styleObject:'0'">
         <scroll :data="toplist" class="toplist">
             <ul>

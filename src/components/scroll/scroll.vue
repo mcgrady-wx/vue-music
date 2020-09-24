@@ -1,4 +1,5 @@
 <template>
+  <!-- 滚动组件 -->
   <div ref="wrapper">
     <slot></slot>
   </div>

@@ -1,4 +1,5 @@
 <template>
+  <!-- 头部组件 -->
   <div class="m-header">
     <div class="icon"></div>
     <h1 class="text">Chicken Music</h1>

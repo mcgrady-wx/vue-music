@@ -1,4 +1,5 @@
 <template>
+    <!-- 推荐页面 -->
     <div class="recommend" ref="recommend" :style="playlist.length?styleObject:'0'">
       <scroll ref="scroll" class="recommend-content" :data="disclist">
         <div>

@@ -1,4 +1,5 @@
 <template>
+    <!-- 歌手列表页面 -->
     <div class="singer">
         <div class="listview">
             <mt-index-list >

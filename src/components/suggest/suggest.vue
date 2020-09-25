@@ -56,6 +56,9 @@ import NoResult from '../../components/no-result/no-result'
       ...mapActions([
         'insertSong'
       ]),
+      refresh() {//用于父元素调用,目的是刷新
+        this.$refs.suggest.refresh()
+      },
       listScroll() {
         this.$emit('listScroll')
       },

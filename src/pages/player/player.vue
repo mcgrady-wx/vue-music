@@ -87,7 +87,7 @@
                 <i class="icon-mini" :class="miniIcon" @click.stop="handleplay"></i>
               </progress-circle>
             </div>
-            <div class="control">
+            <div class="control" @click.stop="showPlaylist">
               <i class="icon-playlist"></i>
             </div>
           </div>
@@ -97,6 +97,7 @@
         ontimeupdate自带事件，获得当前视频或者音频的播放时间
         noended自带事件，表示当歌曲播放完后处理
         -->
+        <playlist ref="playlist"></playlist>
         <audio ref="audio" :src="currentSong?currentSong.url:' '" @play="ready" @error="error" @timeupdate="timeupdate" @ended="end"></audio>  
     </div>   
 </template>
@@ -111,6 +112,7 @@
   import {getSongVkey} from '../../api/singer'
   import Lyric from 'lyric-parser' //第三方歌词解析的方法，带API
   import Scroll from '../../components/scroll/scroll'
+  import playlist from '../../components/playlist/playlist'
   
   export default {
       name:'player',
@@ -189,6 +191,9 @@
         this.touch={}//用于记录touch事件时候的一些共享属性
       },
       methods: {
+        showPlaylist(){//打开歌曲播放列表,调用子元素方法
+            this.$refs.playlist.show()
+        },
         middleTouchStart(e){//事件按下
             this.touch.initiated = true //表示已经按下
             this.touch.startX = e.touches[0].pageX //按下地点距离X轴位置
@@ -495,7 +500,8 @@
       components:{
         progressBar,
         progressCircle,
-        Scroll
+        Scroll,
+        playlist
       }
   }
 </script>

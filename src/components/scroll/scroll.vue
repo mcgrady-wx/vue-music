@@ -81,7 +81,7 @@
       enable() {
         this.scroll && this.scroll.enable()
       },
-      refresh() {
+      refresh() {//刷新
         this.scroll && this.scroll.refresh()
       },
       scrollTo() {

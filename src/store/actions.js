@@ -85,7 +85,34 @@ const actions={
     },
     clearSearchHistory({commit}){//清空历史记录，并保存到本地
         commit('getSearchHistory',clearSearch()) 
+    },
+    deleteSong({commit,state},song){//删除播放列表的一首歌曲
+        let playlist = state.playlist.slice() //获得当前的播放列表
+        let sequenceList = state.sequenceList.slice() //获得当前顺序播放的播放列表
+        let currentIndex = state.currentIndex //获得当前播放歌曲的下标
+        //删除在播放列表的歌曲
+        let pIndex = findIndex(playlist, song)
+        playlist.splice(pIndex,1)
+        //删除在顺序播放列表的歌曲
+        let sIndex = findIndex(sequenceList, song)
+        sequenceList.splice(sIndex,1)
+
+        if (currentIndex > pIndex || currentIndex === playlist.length) {//表示当前播放歌曲在要删除的歌曲后面
+            currentIndex--
+          }
+        //改变播放列表 顺序播放列表 当前播放歌曲下标
+        commit('getPlaylist',playlist)//设置播放列表
+        commit('getSequenceList',sequenceList)//设置顺序播放列表
+        commit('getCurrentIndex',currentIndex)//设置当前播放歌曲序号
+
+        //如果播放列表为空,改变播放状态
+        if (!playlist.length) {
+            commit('getPlaying',false)
+        } else {
+            commit('getPlaying',true)
+        }
     }
+
 }
 
 export default actions

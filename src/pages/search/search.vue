@@ -71,10 +71,10 @@ export default {
 
             //设置两个用了scroll组件的组件bottom的值
             this.$refs.searchResult.style.bottom = bottom //设置搜索结果列表的bottom
-            this.$refs.suggest.refresh()//刷新搜索结果组件
+            this.$refs.suggest.refresh()//调用子元素方法,刷新搜索结果组件
 
             this.$refs.shortcutWrapper.style.bottom = bottom //设置搜索页面的bottom
-            this.$refs.shortcutWrapper.refresh()//刷新当前组件
+            this.$refs.shortcut.refresh()//调用子元素方法,刷新当前组件
         },
         ...mapActions([
             'saveSearchHistory',

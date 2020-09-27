@@ -103,19 +103,21 @@
 </template>
 
 <script>
-  import {mapGetters,mapMutations} from 'vuex'
+  import {mapGetters,mapMutations,mapActions} from 'vuex'
   import animations from 'create-keyframe-animation'//过度动画第三方库
   import progressBar from '../../components/progress-bar/progress-bar.vue'
   import progressCircle from '../../components/progress-circle/progress-circle.vue'
   import { playMode } from '../../store/config'
-  import { shuffle } from '../../common/js/util.js'
+  //import { shuffle } from '../../common/js/util.js'
   import {getSongVkey} from '../../api/singer'
   import Lyric from 'lyric-parser' //第三方歌词解析的方法，带API
   import Scroll from '../../components/scroll/scroll'
   import playlist from '../../components/playlist/playlist'
+  import {playerMixin} from '../../common/js/mixin'//play和playlist共用的一些computed、methods，可以直接使用computed、methods中的函数
   
   export default {
       name:'player',
+      mixins: [playerMixin],
       data(){
         return {
           songReady:false, //歌曲是否准备好播放的标记
@@ -130,9 +132,9 @@
         }
       },
       computed: {
-        iconMode(){//播放模式
-          return this.mode===playMode.sequence?'icon-sequence':this.mode===playMode.loop?'icon-loop':'icon-random'
-        },
+        // iconMode(){//播放模式显示
+        //   return this.mode===playMode.sequence?'icon-sequence':this.mode===playMode.loop?'icon-loop':'icon-random'
+        // },
         cdCls() {//cd是否旋转
           return this.playing ? 'play' : 'play pause'
         },
@@ -152,12 +154,12 @@
         },
         ...mapGetters([
           'fullScreen',
-          'playlist',
-          'currentSong',
           'playing',
           'currentIndex',
-          'mode',
-          'sequenceList'
+          // 'sequenceList',
+          // 'playlist',
+          // 'currentSong',
+          // 'mode'  
         ])
       },
       watch: {
@@ -299,30 +301,32 @@
               this.currentLyric.seek(0) //lyric-parser插件自带的API方法
             }
         },
-        changeMode(){//改变播放模式
-            let mode=(this.mode+1)%3
-            this.getMode(mode)
-            //改变播放列表
-            let list=null
-            //存在问题，当切换的时候当前播放歌曲就会变化，同时因为currentSong发生变化，在监测中一变化就会执行歌曲播放
-            if (mode===playMode.random) {//随机播放
-                list=shuffle(this.sequenceList)//打乱顺序播放列表
-            } else {
-               list=this.sequenceList
-            }
-            this.resetcurrentIndex(list)//设置当前播放歌曲在新列表中的下标，解决切换模式当前播放歌曲会变化的BUG
-            this.getPlaylist(list) //设置播放列表
-        },
-        resetcurrentIndex(list){//获得当前播放歌曲，在新的list中的下标,并发送mutation设置当前播放歌曲的下标
-            const index=list.findIndex((item)=>{
-              return item.id===this.currentSong.id
-            })
-            //console.log(index)
-            //设置下标
-            this.getCurrentIndex(index)
-        },
+        // changeMode(){//改变播放模式
+        //     let mode=(this.mode+1)%3
+        //     this.getMode(mode)
+        //     //改变播放列表
+        //     let list=null
+        //     //存在问题，当切换的时候当前播放歌曲就会变化，同时因为currentSong发生变化，在监测中一变化就会执行歌曲播放
+        //     if (mode===playMode.random) {//随机播放
+        //         list=shuffle(this.sequenceList)//打乱顺序播放列表
+        //     } else {
+        //        list=this.sequenceList
+        //     }
+        //     this.resetcurrentIndex(list)//设置当前播放歌曲在新列表中的下标，解决切换模式当前播放歌曲会变化的BUG
+        //     this.getPlaylist(list) //设置播放列表
+        // },
+        // resetcurrentIndex(list){//获得当前播放歌曲，在新的list中的下标,并发送mutation设置当前播放歌曲的下标
+        //     const index=list.findIndex((item)=>{
+        //       return item.id===this.currentSong.id
+        //     })
+        //     //console.log(index)
+        //     //设置下标
+        //     this.getCurrentIndex(index)
+        // },
         ready(){//歌曲是否已经准备好播放
             this.songReady=true
+            //把歌曲添加到播放历史记录
+            this.savePlayHistory(this.currentSong)
         },
         error(){//歌曲发生错误触发，为了能正常使用按键，也当作准备好
             this.songReady=true
@@ -491,11 +495,14 @@
         },
         ...mapMutations([
           'getFullScreen',
-          'getPlaying',
-          'getCurrentIndex',
-          'getMode',
-          'getPlaylist'
+          // 'getPlaying',
+          // 'getCurrentIndex',
+          // 'getMode',
+          // 'getPlaylist'
         ]),
+        ...mapActions([
+          'savePlayHistory'
+        ])
       },
       components:{
         progressBar,

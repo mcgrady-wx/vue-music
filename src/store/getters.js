@@ -11,7 +11,7 @@ const getters={
     playlist(state){//播放列表
         return state.playlist
     },
-    sequenceList(state){//顺序播放列表
+    sequenceList(state){//顺序播放列表（显示出来的歌曲列表）
         return state.sequenceList
     },
     mode(state){//播放类型
@@ -31,6 +31,9 @@ const getters={
     },
     searchHistory(state){//搜索历史记录
         return state.searchHistory
+    },
+    playHistory(state){//播放历史记录
+        return state.playHistory
     }
 }
 

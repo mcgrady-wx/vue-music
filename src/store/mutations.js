@@ -11,7 +11,7 @@ const mutations={
     getPlaylist(state,list){//获得播放列表
         state.playlist=list
     },
-    getSequenceList(state,list){//获得顺序播放列表
+    getSequenceList(state,list){//获得顺序播放列表（显示出来的歌曲列表）
         state.sequenceList=list
     },
     getMode(state,mode){//获得播放类型
@@ -28,6 +28,9 @@ const mutations={
     },
     getSearchHistory(state,history){//获得搜索的历史纪录
         state.searchHistory=history
+    },
+    getPlayHistory(state,history){//获得播放历史纪录
+        state.playHistory=history
     }
 }
 

@@ -5,9 +5,9 @@
       <div class="list-wrapper" @click.stop>
         <div class="list-header">
           <h1 class="title">
-            <i class="icon" :class="iconMode"></i>
-            <span class="text"></span>
-            <span class="clear"><i class="icon-clear"></i></span>
+            <i class="icon" :class="iconMode" @click="changeMode"></i>
+            <span class="text">{{modeText}}</span>
+            <span class="clear" @click="showConfirm"><i class="icon-clear"></i></span>
           </h1>
         </div>
         <scroll ref="listContent" :data="sequenceList" class="list-content" :refreshDelay="refreshDelay">
@@ -25,7 +25,7 @@
           </transition-group>
         </scroll>
         <div class="list-operate">
-          <div class="add">
+          <div class="add" @click="addSong">
             <i class="icon-add"></i>
             <span class="text">添加歌曲到队列</span>
           </div>
@@ -34,16 +34,20 @@
           <span>关闭</span>
         </div>
       </div>
+      <confirm ref="confirm" @confirm="confirmClear" text="是否清空播放列表"></confirm>
+      <add-song ref="addSong"></add-song>
     </div>
   </transition>
 </template>
 
 <script type="text/ecmascript-6">
-  import {mapActions,mapGetters, mapMutations} from 'vuex'
+  import {mapActions} from 'vuex'
   import {playMode} from '../../common/js/config'
   import Scroll from '../../components/scroll/scroll'
   import Confirm from '../../components/confirm/confirm'
-  import {playerMixin} from '../../common/js/mixin'
+  import {playerMixin} from '../../common/js/mixin'//play和playlist共用的一些computed、methods，可以直接使用computed、methods中的函数
+  import confirm from '../../components/confirm/confirm'
+  import AddSong from '../../components/add-song/add-song'
 
   export default {
     mixins: [playerMixin],
@@ -57,12 +61,13 @@
       modeText() {
         return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.random ? '随机播放' : '单曲循环'
       },
-      ...mapGetters([
-          'sequenceList',
-          'currentSong',
-          'playlist',
-          'mode'
-      ])
+      //引入了playerMixin，可以直接使用下面的mapGetters
+      // ...mapGetters([
+      //     'sequenceList',
+      //     'currentSong',
+      //     'playlist',
+      //     'mode'
+      // ])
     },
     methods: {
       show() {//显示歌曲播放列表,显示歌曲列表为sequenceList,而实际播放的列表playlist
@@ -102,15 +107,27 @@
         if (!this.playlist.length) {//防止当播放列表删除完后,重新点击一首歌曲后,播放列表会直接显示出来的BUG
         //BUG原因:在父元素上点击了歌曲列表图标,组件是显示状态,当playlist.length为0的时候整个父元素状态为hide
         //当有playlist的时候,父元素显示,且本元素showFlag为true也是显示状态,所以要设置showFlag的状态为false
-            this.hide()
+          this.hide()
         }
       },
-      ...mapMutations([
-          'getCurrentIndex',
-          'getPlaying'
-      ]),
+      showConfirm(){//点击弹出是否删除小窗口
+        this.$refs.confirm.show()
+      },
+      confirmClear(){//确定删除播放列表
+        this.deleteSongList()//删除歌曲列表
+        this.hide()//关闭歌曲列表
+      },
+      addSong(){//显示添加歌曲页面
+        this.$refs.addSong.show()
+      },
+      //引入了playerMixin，可以直接使用下面的mapMutations
+      // ...mapMutations([
+      //     'getCurrentIndex',
+      //     'getPlaying'
+      // ]),
       ...mapActions([
-          'deleteSong'
+          'deleteSong',
+          'deleteSongList'
       ])
     },
     watch: {
@@ -123,7 +140,8 @@
     },
     components: {
       Scroll,
-      Confirm,
+      confirm,
+      AddSong
     }
   }
 </script>

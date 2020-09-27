@@ -31,7 +31,7 @@ import NoResult from '../../components/no-result/no-result'
 
   export default {
     props: {
-      showSinger: {
+      showSinger: {//是否搜索歌手
         type: Boolean,
         default: true
       },
@@ -59,7 +59,7 @@ import NoResult from '../../components/no-result/no-result'
       refresh() {//用于父元素调用,目的是刷新
         this.$refs.suggest.refresh()
       },
-      listScroll() {
+      listScroll() {//滚动的时候关闭小键盘
         this.$emit('listScroll')
       },
       _search() {//发起搜索请求
@@ -127,7 +127,7 @@ import NoResult from '../../components/no-result/no-result'
         } else {//如果点击的是歌曲，把歌曲保存到播放列表中并播放
           this.insertSong(item)
         }
-        this.$emit('select', item)//调用父元素传递过来的自定义方法，把数据保存到vuex和本地
+        this.$emit('select', item)//调用父元素传递过来的自定义方法，把数据传回给父元素
       },
       getIconCls(item) {//根据类型设置列表样式
         if (item.type === TYPE_SINGER) {

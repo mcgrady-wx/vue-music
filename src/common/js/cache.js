@@ -3,8 +3,8 @@ import storage from 'good-storage' //第三方本地存储插件
 const SEARCH_KEY = '__search__' //搜索存储
 const SEARCH_MAX_LEN = 15       //最大存储15条数据
 
-const PLAY_KEY = '__play__'
-const PLAY_MAX_LEN = 200
+const PLAY_KEY = '__play__' //播放历史
+const PLAY_MAX_LEN = 200   //最大播放历史存储量
 
 const FAVORITE_KEY = '__favorite__'
 const FAVORITE_MAX_LEN = 200
@@ -57,12 +57,12 @@ export function loadSearch() {//获得新的本地存储数据
   return storage.get(SEARCH_KEY, [])
 }
 
-export function savePlay(song) {
+export function savePlay(song) {//添加播放历史
   let songs = storage.get(PLAY_KEY, [])
   insertArray(songs, song, (item) => {
     return song.id === item.id
   }, PLAY_MAX_LEN)
-  storage.set(PLAY_KEY, songs)
+  storage.set(PLAY_KEY, songs) //保存到本地
   return songs
 }
 

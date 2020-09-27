@@ -40,18 +40,17 @@ import Scroll from '../../components/scroll/scroll'
 import SearchBox from '../../components/search-box/search-box'
 import suggest from '../../components/suggest/suggest'
 import {getHotKey} from '../../api/search'
-import {mapActions,mapGetters} from 'vuex'
+import {mapActions} from 'vuex'
 import SearchList from '../../components/search-list/search-list'
 import confirm from '../../components/confirm/confirm'
-import {playlistMixin} from '../../common/js/mixin' //处理播放器打开后，显示页面bottom的值变化
+import {playlistMixin,searchMixin} from '../../common/js/mixin' //处理播放器打开后，显示页面bottom的值变化。searchMixin共用的一些数据和方法
 export default {
     name:"search",
-    mixins: [playlistMixin],
+    mixins: [playlistMixin,searchMixin],
     data(){
         return {
             hotKey: [],
-            query:''
-
+            //query:''
         }
     },
     created() {
@@ -61,9 +60,9 @@ export default {
         shortcut(){
             return this.hotKey.concat(this.searchHistory)
         },
-        ...mapGetters([
-            'searchHistory'
-        ])
+        // ...mapGetters([
+        //     'searchHistory'
+        // ])
     },
     methods: {
         handlePlaylist(playlist) {//处理播放器挡住最下面的问题，播放器打开后，显示页面bottom的值要变成60px 没打开默认为0
@@ -77,8 +76,8 @@ export default {
             this.$refs.shortcut.refresh()//调用子元素方法,刷新当前组件
         },
         ...mapActions([
-            'saveSearchHistory',
-            'deleteSearchHistory',
+            //'saveSearchHistory',
+            //'deleteSearchHistory',
             'clearSearchHistory'
         ]),
         _getHotKey(){
@@ -89,18 +88,18 @@ export default {
                 }
             })
         },
-        addQuery(name){//点击，让点击的文字显示在输入框
-            this.$refs.searchBox.setQuery(name)//调取子组件的方法
-        },
-        onQueryChange(query){//通过自定义函数，子组件用emit事件把新的query值返回给父元素
-            this.query=query
-        },
-        blurInput(){//优化输入框失去焦点的时候收起小键盘
-            this.$refs.searchBox.blur()
-        },
-        saveSearch(){//传递给子元素的自定义方法，当子元素点击跳转后，把query的内容保存到历史记录
-            this.saveSearchHistory(this.query)
-        },
+        // addQuery(name){//点击，让点击的文字显示在输入框
+        //     this.$refs.searchBox.setQuery(name)//调取子组件的方法
+        // },
+        // onQueryChange(query){//通过自定义函数，子组件用emit事件把新的query值返回给父元素
+        //     this.query=query
+        // },
+        // blurInput(){//优化输入框失去焦点的时候收起小键盘
+        //     this.$refs.searchBox.blur()
+        // },
+        // saveSearch(){//传递给子元素的自定义方法，当子元素点击跳转后，把query的内容保存到历史记录
+        //     this.saveSearchHistory(this.query)
+        // },
         showConfirm(){//点击垃圾桶显示弹窗小窗口
             this.$refs.confirm.show()
         },

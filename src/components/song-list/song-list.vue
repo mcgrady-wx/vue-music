@@ -40,6 +40,7 @@
           list:this.data, //歌曲列表
           index
         })
+        this.$emit('select',song,index)
       },
       getRankCls(index) {//前三显示奖杯，后面显示数值
         if (index <= 2) {

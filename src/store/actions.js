@@ -16,7 +16,7 @@ const actions={
         } else {//如果不是随机播放就设置播放播放列表
             commit('getPlaylist',list)//设置播放列表
         }
-        commit('getSequenceList',list)//设置顺序播放列表
+        commit('getSequenceList',list)//设置顺序播放列表（显示出来的歌曲列表）
         commit('getCurrentIndex',index)//设置当前播放歌曲序号
         commit('getPlaying',true)//设置开始播放
         commit('getFullScreen',true)//设置全屏播放
@@ -25,7 +25,7 @@ const actions={
         let randomlist=shuffle(list)//打乱播放列表
         commit('getPlaylist',randomlist)//设置播放列表
         commit('getMode',playMode.random)//设置播放类型为随机播放
-        commit('getSequenceList',list)//设置顺序播放列表
+        commit('getSequenceList',list)//设置顺序播放列表（显示出来的歌曲列表）
         commit('getCurrentIndex',0)//设置当前播放歌曲序号，就从第一首随机播放
         commit('getPlaying',true)//设置开始播放
         commit('getFullScreen',true)//设置全屏播放
@@ -72,7 +72,7 @@ const actions={
 
         //设置mutations
         commit('getPlaylist',playlist)//设置播放列表
-        commit('getSequenceList',sequenceList)//设置顺序播放列表
+        commit('getSequenceList',sequenceList)//设置顺序播放列表（显示出来的歌曲列表）
         commit('getCurrentIndex',currentIndex)//设置当前播放歌曲序号
         commit('getPlaying',true)//设置开始播放
         commit('getFullScreen',true)//设置全屏播放
@@ -102,7 +102,7 @@ const actions={
           }
         //改变播放列表 顺序播放列表 当前播放歌曲下标
         commit('getPlaylist',playlist)//设置播放列表
-        commit('getSequenceList',sequenceList)//设置顺序播放列表
+        commit('getSequenceList',sequenceList)//设置顺序播放列表（显示出来的歌曲列表）
         commit('getCurrentIndex',currentIndex)//设置当前播放歌曲序号
 
         //如果播放列表为空,改变播放状态
@@ -111,7 +111,17 @@ const actions={
         } else {
             commit('getPlaying',true)
         }
-    }
+    },
+    deleteSongList({commit}){//清空歌曲播放列表
+        //把playlist、sequenceList、currentIndex、playing四个的值设置为初始值
+        commit('getPlaylist',[])//设置播放列表
+        commit('getSequenceList',[])//设置顺序播放列表（显示出来的歌曲列表）
+        commit('getCurrentIndex',-1)//设置当前播放歌曲序号
+        commit('getPlaying',false)
+    },
+    savePlayHistory({commit},song){//新增历史记录，得到新的搜索历史记录，并保存到本地
+        commit('getPlayHistory',savePlay(song)) 
+    },
 
 }
 

@@ -19,11 +19,22 @@
                     <song-list :data="playHistory" @select="selectSong"></song-list>
                 </div>
             </scroll>
+            <scroll :refreshDelay="refreshDelay" ref="searchList" v-if="currentIndex===1" class="list-scroll" :data="searchHistory">
+              <div class="list-inner">
+                <search-list @delete="deleteSearchHistory" @select="addQuery" :searches="searchHistory"></search-list>
+              </div>
+            </scroll>
         </div>
       </div>
       <div class="search-result" v-show="query">
        <suggest :showSinger="showSinger" :query="query" @select="selectSuggest" @listScroll="blurInput"></suggest>
       </div>
+      <top-tip ref="topTip">
+        <div class="tip-title">
+          <i class="icon-ok"></i>
+          <span class="text">歌曲已经添加到播放列表</span>
+        </div>
+      </top-tip>
     </div>
   </transition>
 </template>
@@ -37,6 +48,8 @@
   import songList from '../song-list/song-list'
   import {mapGetters,mapActions} from 'vuex'
   import Song from '../../common/js/song'
+  import searchList from '../search-list/search-list'
+  import topTip from '../top-tip/top-tip'
 
   export default {
     mixins: [searchMixin],
@@ -58,25 +71,38 @@
     },
     computed: {
      ...mapGetters([
-         'playHistory'
+         'playHistory',
+         'sequenceList'
      ])
     },
     methods: {
       show() {
         this.showFlag = true
+        setTimeout(() => {//延时刷新scroll组件，防止滚动高度BUG
+          if (this.currentIndex === 0) {
+            this.$refs.songList.refresh()
+          } else {
+            this.$refs.searchList.refresh()
+          }
+        }, 20)
       },
       hide() {
         this.showFlag = false
       },
       selectSuggest(){//点击搜索的歌曲
         this.saveSearch()//添加到历史记录
+        //提示已添加到播放列表
+        this.$refs.topTip.show()
       },
       switchItem(index){//切换栏
         this.currentIndex=index
       },
       selectSong(song, index){//通过自定义函数，子元素点击传递回来的歌曲，把歌曲添加到播放列表
         if (index !== 0) {//表示不是当前播放歌曲
+        console.log(this.sequenceList)
             this.insertSong(new Song(song))
+            //提示已添加到播放列表
+            this.$refs.topTip.show()
         }
       },
       ...mapActions([
@@ -88,7 +114,9 @@
         suggest,
         switches,
         scroll,
-        songList
+        songList,
+        searchList,
+        topTip
     }
   }
 </script>

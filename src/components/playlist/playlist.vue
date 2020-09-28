@@ -54,7 +54,7 @@
     data() {
       return {
         showFlag: false,
-        refreshDelay: 120
+        refreshDelay: 120 //设置scroll组件刷新时间
       }
     },
     computed: {

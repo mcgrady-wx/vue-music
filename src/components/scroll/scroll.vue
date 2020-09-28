@@ -34,7 +34,7 @@
         type: Boolean,
         default: false
       },
-      refreshDelay: {
+      refreshDelay: {//组件刷新的时间
         type: Number,
         default: 20
       }

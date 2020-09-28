@@ -34,12 +34,7 @@
       ...mapActions([
         'selectPlay'
       ]),
-      selectItem(song,index){//开启播放器
-        //传入数据，歌曲列表和当前播放歌曲序号
-        this.selectPlay({
-          list:this.data, //歌曲列表
-          index
-        })
+      selectItem(song,index){//点击歌曲，调用父元素传递过来的方法，把当前点击的歌曲和歌曲下标返回给父元素      
         this.$emit('select',song,index)
       },
       getRankCls(index) {//前三显示奖杯，后面显示数值

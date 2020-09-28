@@ -34,7 +34,6 @@ const actions={
         let playlist = state.playlist.slice() //获得当前的播放列表
         let sequenceList = state.sequenceList.slice() //获得当前顺序播放的播放列表
         let currentIndex = state.currentIndex //获得当前播放歌曲的下标
-
         // 记录当前歌曲
         let currentSong = playlist[currentIndex]
         //处理playlist播放列表

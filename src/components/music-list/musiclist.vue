@@ -23,7 +23,7 @@
     <!-- 歌曲列表区域 -->
     <music-scroll :data="data" @scroll="scroll" :listen-scroll="listenScroll" :probe-type="probeType" class="list" ref="list" :style="playlist.length?styleObject:'0'">
       <div class="song-list-wrapper">
-        <song-list :data="data" :rank="rank"></song-list>
+        <song-list :data="data" :rank="rank" @select="play"></song-list>
       </div>
       <div v-show="!data.length" class="loading-container">
         <loading></loading>
@@ -136,8 +136,16 @@
           //this.$router.go(-1)
           this.$router.back()
         },
+        play(song,index){//开启播放器并播放歌曲,自定义函数，让子元素调用，传回数据（当前点击歌曲和下标）
+          //传入数据，歌曲列表和当前播放歌曲序号
+          this.selectPlay({
+            list:this.data, //歌曲列表
+            index
+          })
+        },
         ...mapActions([
-          'randomPlay'
+          'randomPlay',
+          'selectPlay'
         ]) 
       },
       components:{

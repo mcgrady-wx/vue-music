@@ -98,7 +98,7 @@ export const searchMixin = {//search和addSong组件共用关于搜索的一些�
   data() {
     return {
       query: '',
-      //refreshDelay: 120
+      refreshDelay: 120 //设置scroll组件刷新时间，重新计算高度实现滚动
     }
   },
   computed: {

@@ -2,7 +2,7 @@ import {mapGetters, mapMutations, mapActions} from 'vuex'
 import { playMode } from '../../store/config'
 import { shuffle } from '../../common/js/util.js'
 
-export const playlistMixin = {
+export const playlistMixin = {//共用方法，还设置当有小播放器的时候组件bottom的值
   computed: {
     ...mapGetters([
       'playlist'
@@ -36,7 +36,7 @@ export const playerMixin = {//play和playlist共用的一些computed、methods
       'playlist',
       'currentSong',
       'mode',
-      //'favoriteList'
+      'favoriteList'
     ])
   },
   methods: {
@@ -62,35 +62,36 @@ export const playerMixin = {//play和playlist共用的一些computed、methods
         //设置下标
         this.getCurrentIndex(index)
     },
-    // toggleFavorite(song) {
-    //   if (this.isFavorite(song)) {
-    //     this.deleteFavoriteList(song)
-    //   } else {
-    //     this.saveFavoriteList(song)
-    //   }
-    // },
-    // getFavoriteIcon(song) {
-    //   if (this.isFavorite(song)) {
-    //     return 'icon-favorite'
-    //   }
-    //   return 'icon-not-favorite'
-    // },
-    // isFavorite(song) {
-    //   const index = this.favoriteList.findIndex((item) => {
-    //     return item.id === song.id
-    //   })
-    //   return index > -1
-    // },
+    toggleFavorite(song) {//添加或取消收藏
+      if (this.isFavorite(song)) {//已存在，取消收藏
+        this.deleteFavoriteList(song)
+      } else {//不存在，添加收藏
+        this.saveFavoriteList(song)
+      }
+    },
+    getFavoriteIcon(song) {//样式显示
+      if (this.isFavorite(song)) {//存在，显示高亮
+        return 'icon-favorite'
+      }
+      //不存在，不显示高亮
+      return 'icon-not-favorite'
+    },
+    isFavorite(song) {//判断一个数组中是否存在某项
+      const index = this.favoriteList.findIndex((item) => {
+        return item.id === song.id
+      })
+      return index > -1
+    },
     ...mapMutations([
         'getPlaying',
         'getCurrentIndex',
         'getMode',
         'getPlaylist'
     ]),
-    // ...mapActions([
-    //   'saveFavoriteList',
-    //   'deleteFavoriteList'
-    // ])
+    ...mapActions([
+      'saveFavoriteList',
+      'deleteFavoriteList'
+    ])
   }
 }
 

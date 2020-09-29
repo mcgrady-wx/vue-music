@@ -13,6 +13,7 @@ const state={
     toplist:{}, //top歌单信息
     searchHistory: loadSearch(),//搜索的历史纪录
     playHistory: loadPlay(), //播放历史记录
+    favoriteList:loadFavorite(),//收藏歌曲列表
 }
 
 

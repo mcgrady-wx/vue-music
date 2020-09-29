@@ -118,10 +118,15 @@ const actions={
         commit('getCurrentIndex',-1)//设置当前播放歌曲序号
         commit('getPlaying',false)
     },
-    savePlayHistory({commit},song){//新增历史记录，得到新的搜索历史记录，并保存到本地
+    savePlayHistory({commit},song){//新增播放历史记录，得到新的搜索历史记录，并保存到本地
         commit('getPlayHistory',savePlay(song)) 
     },
-
+    saveFavoriteList({commit},song){//添加收藏歌曲
+        commit('geFavoriteList',saveFavorite(song)) 
+    },
+    deleteFavoriteList({commit},song){//取消收藏
+        commit('geFavoriteList',deleteFavorite(song)) 
+    }
 }
 
 export default actions

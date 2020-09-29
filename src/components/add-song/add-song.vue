@@ -99,7 +99,6 @@
       },
       selectSong(song, index){//通过自定义函数，子元素点击传递回来的歌曲，把歌曲添加到播放列表
         if (index !== 0) {//表示不是当前播放歌曲
-        console.log(this.sequenceList)
             this.insertSong(new Song(song))
             //提示已添加到播放列表
             this.$refs.topTip.show()

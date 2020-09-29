@@ -31,6 +31,9 @@ const mutations={
     },
     getPlayHistory(state,history){//获得播放历史纪录
         state.playHistory=history
+    },
+    geFavoriteList(state,list){//获得收藏歌曲列表
+        state.favoriteList=list
     }
 }
 

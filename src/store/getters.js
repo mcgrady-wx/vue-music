@@ -34,6 +34,9 @@ const getters={
     },
     playHistory(state){//播放历史记录
         return state.playHistory
+    },
+    favoriteList(state){//收藏歌曲
+        return state.favoriteList
     }
 }
 

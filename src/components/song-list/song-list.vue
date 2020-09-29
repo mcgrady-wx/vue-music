@@ -16,7 +16,6 @@
 </template>
 
 <script>
-  import {mapActions} from 'vuex'
 
   export default {
     name:'songlist',
@@ -31,9 +30,6 @@
       }
     },
     methods: {
-      ...mapActions([
-        'selectPlay'
-      ]),
       selectItem(song,index){//点击歌曲，调用父元素传递过来的方法，把当前点击的歌曲和歌曲下标返回给父元素      
         this.$emit('select',song,index)
       },

@@ -6,8 +6,8 @@ const SEARCH_MAX_LEN = 15       //最大存储15条数据
 const PLAY_KEY = '__play__' //播放历史
 const PLAY_MAX_LEN = 200   //最大播放历史存储量
 
-const FAVORITE_KEY = '__favorite__'
-const FAVORITE_MAX_LEN = 200
+const FAVORITE_KEY = '__favorite__'//收藏
+const FAVORITE_MAX_LEN = 200 //最大收藏数
 
 function insertArray(arr, val, compare, maxLen) { // 自定义方法，添加获得一个新数组， 第一个参数是当前数组 第二个参数是当前要插入的数据 第三个参数是比较函数 第四个参数是数组最大长度
   const index = arr.findIndex(compare) //查找当前数组中是否有要插入的数据
@@ -66,11 +66,11 @@ export function savePlay(song) {//添加播放历史
   return songs
 }
 
-export function loadPlay() {
+export function loadPlay() {//获得播放历史
   return storage.get(PLAY_KEY, [])
 }
 
-export function saveFavorite(song) {
+export function saveFavorite(song) {//添加收藏歌曲
   let songs = storage.get(FAVORITE_KEY, [])
   insertArray(songs, song, (item) => {
     return song.id === item.id
@@ -79,7 +79,7 @@ export function saveFavorite(song) {
   return songs
 }
 
-export function deleteFavorite(song) {
+export function deleteFavorite(song) {//删除收藏歌曲
   let songs = storage.get(FAVORITE_KEY, [])
   deleteFromArray(songs, (item) => {
     return item.id === song.id
@@ -88,7 +88,7 @@ export function deleteFavorite(song) {
   return songs
 }
 
-export function loadFavorite() {
+export function loadFavorite() {//获得收藏歌曲
   return storage.get(FAVORITE_KEY, [])
 }
 

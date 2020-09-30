@@ -16,8 +16,8 @@ module.exports = {
           changeOrigin: true, //改变源 
           pathRewrite: { 
             '^/api': 'https://u.y.qq.com/cgi-bin/musics.fcg' //路径重写 
-      } 
-  } 
+          } 
+        } 
     },
 
     // Various Dev Server settings
@@ -51,7 +51,8 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    port:9000,
+    assetsPublicPath: './',
 
     /**
      * Source Maps

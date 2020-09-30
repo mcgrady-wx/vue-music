@@ -19,6 +19,7 @@
 <script>
 import base from '../../api/base'
 import {mapMutations} from "vuex"
+import {getSingerList} from '../../api/singer'
 export default {
     name:"singer",
     data(){
@@ -42,9 +43,10 @@ export default {
                      }
                  }//用于获取整理后的数据样式
             //发起请求获取数据
-            this.$axios.get(base.singers).then((res)=>{
+            getSingerList().then((res)=>{
                 //console.log(res.data.data.list)
-                data=res.data.data.list
+                console.log(res.data)
+                data=res.data.list
                 //遍历数据，添加到需要整理的对象中
                 data.forEach((item,index)=>{
                     if (index<HOT_NUM) { //设置热门歌手数量

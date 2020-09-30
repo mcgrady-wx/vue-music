@@ -52,7 +52,7 @@ module.exports = {
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
     port:9000,
-    assetsPublicPath: './',
+    assetsPublicPath: '/music/',
 
     /**
      * Source Maps
